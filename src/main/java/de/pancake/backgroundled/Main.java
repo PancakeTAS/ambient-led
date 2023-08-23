@@ -3,6 +3,9 @@ package de.pancake.backgroundled;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -15,6 +18,7 @@ public class Main {
     public static final Logger LOGGER = Logger.getLogger("Background Led");
     public static final int[][] COLORS = new int[180][3];
     public static final Timer timer = new Timer();
+    public static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(6);
     public static volatile boolean paused = false;
 
     private static MenuItem pause;
@@ -49,7 +53,7 @@ public class Main {
 
         // start timers
         timer.scheduleAtFixedRate(new LedUpdater(), 0, 1000/60);
-        timer.scheduleAtFixedRate(new ScreenGrabber(), 0, 1000/10);
+        executor.scheduleAtFixedRate(new ScreenGrabber(), 0, 1000/30, TimeUnit.MILLISECONDS);
     }
 
     /**

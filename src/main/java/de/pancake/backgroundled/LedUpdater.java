@@ -44,9 +44,9 @@ public class LedUpdater extends TimerTask {
             // update the colors
             for (int i = 0; i < 180; i++) {
                 // interpolate the final color
-                final_colors[i][0] = (int) (final_colors[i][0] + (COLORS[i][0] - final_colors[i][0]) * .2);
-                final_colors[i][1] = (int) (final_colors[i][1] + (COLORS[i][1] - final_colors[i][1]) * .2);
-                final_colors[i][2] = (int) (final_colors[i][2] + (COLORS[i][2] - final_colors[i][2]) * .2);
+                final_colors[i][0] = (int) (final_colors[i][0] + (COLORS[i][0] - final_colors[i][0]) * .5);
+                final_colors[i][1] = (int) (final_colors[i][1] + (COLORS[i][1] - final_colors[i][1]) * .5);
+                final_colors[i][2] = (int) (final_colors[i][2] + (COLORS[i][2] - final_colors[i][2]) * .5);
 
                 // write the color to the led
                 this.led.write(i, final_colors[i][0], final_colors[i][1], final_colors[i][2]);
