@@ -41,20 +41,20 @@ public class ScreenGrabber extends TimerTask {
         if (paused)
             return;
 
-        // capture left side of screen and calculate average color for each led
+        // capture screen
         var img = this.screenshot(3840, 0, 300, HEIGHT);
+        var img2 = this.screenshot(3840, 0, WIDTH, 180);
+        var img3 = this.screenshot(3840 + WIDTH - 300, 0, 300, HEIGHT);
+
+        // calculate average color for each led
         for (int i = 0; i < LEDS_SIDE; i++)
             this.calculateAverageColor(i, img.getSubimage(0, HEIGHT_PER_LED * (LEDS_SIDE - i - 1), 300, HEIGHT_PER_LED - 1));
 
-        // capture top of screen...
-        img = this.screenshot(1920+1920, 0, WIDTH, 180);
         for (int i = 0; i < LEDS_TOP; i++)
-            this.calculateAverageColor(LEDS_SIDE + i, img.getSubimage(WIDTH_PER_LED * i, 0, WIDTH_PER_LED - 1, 180));
+            this.calculateAverageColor(LEDS_SIDE + i, img2.getSubimage(WIDTH_PER_LED * i, 0, WIDTH_PER_LED - 1, 180));
 
-        // capture right side of screen...
-        img = this.screenshot(1920+1920 + WIDTH - 300, 0, 300, HEIGHT);
         for (int i = 0; i < LEDS_SIDE - 5; i++)
-            this.calculateAverageColor(LEDS_SIDE + LEDS_TOP + i, img.getSubimage(0, HEIGHT_PER_LED * i, 300, HEIGHT_PER_LED - 1));
+            this.calculateAverageColor(LEDS_SIDE + LEDS_TOP + i, img3.getSubimage(0, HEIGHT_PER_LED * i, 300, HEIGHT_PER_LED - 1));
     }
 
     /**
@@ -64,11 +64,11 @@ public class ScreenGrabber extends TimerTask {
      */
     private void calculateAverageColor(int index, BufferedImage image) {
         int totalRed = 0, totalGreen = 0, totalBlue = 0;
-        int totalPixels = image.getHeight() * image.getWidth();
+        int totalPixels = image.getHeight() * image.getWidth() / 4;
 
         // iterate through each pixel of the image
-        for (int y = 0; y < image.getHeight(); y++) {
-            for (int x = 0; x < image.getWidth(); x++) {
+        for (int y = 0; y < image.getHeight(); y+=2) {
+            for (int x = 0; x < image.getWidth(); x+=2) {
                 var pixelColor = new Color(image.getRGB(x, y));
                 totalRed += pixelColor.getRed();
                 totalGreen += pixelColor.getGreen();
