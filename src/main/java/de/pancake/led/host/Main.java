@@ -1,4 +1,4 @@
-package de.pancake.backgroundled;
+package de.pancake.led.host;
 
 import javax.swing.*;
 import java.awt.*;

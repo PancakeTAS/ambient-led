@@ -1,4 +1,4 @@
-package de.pancake.backgroundled;
+package de.pancake.led.host;
 
 import com.fazecast.jSerialComm.SerialPort;
 

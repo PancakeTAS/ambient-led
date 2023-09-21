@@ -3,7 +3,19 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-application.mainClass = 'de.pancake.backgroundled.Main'
+base {
+    group = "de.pancake"
+    archivesName = "led"
+    version = "1.0.0-SNAPSHOT"
+}
+
+application {
+    mainClass = 'de.pancake.led.host.Main'
+}
+
+java {
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
@@ -11,7 +23,27 @@ repositories {
 }
 
 dependencies {
+    // add jserial for arduino connection
     implementation 'com.fazecast:jSerialComm:2.10.3'
+
+    // add jna for screen capture
     implementation 'net.java.dev.jna:jna:5.13.0'
     implementation 'net.java.dev.jna:jna-platform:5.13.0'
+
+    // add pi4j for raspberry pi gpio
+    implementation 'com.pi4j:pi4j-plugin-raspberrypi:2.3.0'
+
+    // add lombok
+    implementation 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+
+tasks.register('uploadRpi', Exec) {
+    workingDir "${buildDir}/libs"
+    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}.jar | sftp 192.168.178.54:/home/pancake/led/".split(" ")
+}
+
+tasks.register('restartRpi', Exec) {
+    workingDir "${buildDir}/libs"
+    commandLine "ssh 192.168.178.54 sudo systemctl restart led".split(" ")
 }

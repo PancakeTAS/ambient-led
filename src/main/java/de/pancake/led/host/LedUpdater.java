@@ -1,8 +1,8 @@
-package de.pancake.backgroundled;
+package de.pancake.led.host;
 
 import java.util.TimerTask;
 
-import static de.pancake.backgroundled.Main.*;
+import static de.pancake.led.host.Main.*;
 
 /**
  * Led updater class

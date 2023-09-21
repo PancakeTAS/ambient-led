@@ -1,4 +1,4 @@
-package de.pancake.backgroundled;
+package de.pancake.led.host;
 
 import com.sun.jna.Memory;
 import com.sun.jna.platform.win32.GDI32;
@@ -12,8 +12,8 @@ import java.awt.image.DirectColorModel;
 import java.awt.image.Raster;
 import java.util.TimerTask;
 
-import static de.pancake.backgroundled.Main.COLORS;
-import static de.pancake.backgroundled.Main.paused;
+import static de.pancake.led.host.Main.COLORS;
+import static de.pancake.led.host.Main.paused;
 
 /**
  * Screen grabber class
