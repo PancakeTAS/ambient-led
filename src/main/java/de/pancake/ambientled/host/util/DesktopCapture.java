@@ -41,7 +41,7 @@ public class DesktopCapture {
      * @param height Height
      * @return Capture record
      */
-    public Capture setupCapture(int x, int y, int width, int height) {
+    public static Capture setupCapture(int x, int y, int width, int height) {
         // create bitmap info
         var bitmapInfo = new WinGDI.BITMAPINFO();
         bitmapInfo.bmiHeader.biWidth = width;
@@ -64,7 +64,7 @@ public class DesktopCapture {
      * @param capture Capture record
      * @return Screenshot
      */
-    public BufferedImage screenshot(Capture capture) {
+    public static BufferedImage screenshot(Capture capture) {
         // copy desktop into bitmap
         GDI.SelectObject(DC, capture.bitmap);
         GDI.BitBlt(DC, 0, 0, capture.width, capture.height, DESKTOP, capture.x, capture.y, GDI32.SRCCOPY);
@@ -86,7 +86,7 @@ public class DesktopCapture {
      * Cleanup allocated resources from capture
      * @param capture Capture record
      */
-    public void cleanupCapture(Capture capture) {
+    public static void cleanupCapture(Capture capture) {
         capture.memory.close();
         capture.bitmapInfo.clear();
         GDI.DeleteObject(capture.bitmap);

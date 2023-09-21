@@ -11,12 +11,12 @@ import java.util.Arrays;
 import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 
 /**
- * Led updater class
+ * Arduino updater class
  * @author Pancake
  */
 public class ArduinoUpdater implements Runnable {
 
-    /** Led instance */
+    /** Ambient led instance */
     private final AmbientLed led;
     /** Arduino led instance */
     private ArduinoLed arduino;
@@ -26,8 +26,8 @@ public class ArduinoUpdater implements Runnable {
     private final Color[] final_colors = new Color[180];
 
     /**
-     * Initialize led updater
-     * @param led Led instance
+     * Initialize arduino updater
+     * @param led Ambient led instance
      */
     public ArduinoUpdater(AmbientLed led) {
         this.led = led;
@@ -43,20 +43,19 @@ public class ArduinoUpdater implements Runnable {
     @Override
     public void run() {
         try {
-            if (this.led.isPaused() && this.arduino != null)
-                this.arduino = this.arduino.close();
+            // disconnect arduino on pause
+            if (this.led.isPaused()) {
+                if (this.arduino != null)
+                    this.arduino = this.arduino.close();
 
-            if (this.led.isPaused())
                 return;
+            }
 
             // lerp and update colors
             for (int i = 0; i < colors.length; i++)
                 this.arduino.write(i, final_colors[i] = ColorUtil.lerp(colors[i], final_colors[i], .5));
-
-            // flush the led
             this.arduino.flush();
         } catch (Exception e) {
-            // something went wrong, try to reopen the connection
             LOGGER.severe(e.getMessage());
             this.reopen();
         }
@@ -64,7 +63,7 @@ public class ArduinoUpdater implements Runnable {
     }
 
     /**
-     * Reopens the connection to the Arduino
+     * Reopen connection to arduino
      */
     private void reopen() {
         try {
