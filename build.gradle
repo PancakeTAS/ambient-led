@@ -5,12 +5,12 @@ plugins {
 
 base {
     group = "de.pancake"
-    archivesName = "led"
+    archivesName = "ambientled"
     version = "1.0.0-SNAPSHOT"
 }
 
 application {
-    mainClass = 'de.pancake.led.host.Main'
+    mainClass = 'de.pancake.ambientled.host.AmbientLed'
 }
 
 java {
@@ -40,10 +40,10 @@ dependencies {
 
 tasks.register('uploadRpi', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}.jar | sftp 192.168.178.54:/home/pancake/led/".split(" ")
+    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}.jar | sftp 192.168.178.54:/home/pancake/ambientled/".split(" ")
 }
 
 tasks.register('restartRpi', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh 192.168.178.54 sudo systemctl restart led".split(" ")
+    commandLine "ssh 192.168.178.54 sudo systemctl restart ambientled".split(" ")
 }
