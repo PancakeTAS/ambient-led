@@ -78,7 +78,7 @@ public class PiUpdater implements Runnable {
      */
     private void reconnect() {
         try {
-            LOGGER.info("Reopening connection to Raspberry Pi");
+            LOGGER.fine("Reopening connection to Raspberry Pi");
             this.piTop = new PiController("192.168.178.54", 5163);
             this.piBottom = new PiController("192.168.178.54", 5164);
         } catch (Exception e) {

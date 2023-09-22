@@ -23,14 +23,15 @@ public class DesktopCapture {
     private static final User32 USER = User32.INSTANCE;
     /** GDI32 instance */
     private static final GDI32 GDI = GDI32.INSTANCE;
-    /** Desktop device context */
-    private static final WinDef.HDC DESKTOP = USER.GetDC(USER.GetDesktopWindow());
-    /** Device context */
-    private static final WinDef.HDC DC = GDI.CreateCompatibleDC(DESKTOP);
     /** Color model */
     private static final DirectColorModel COLOR_MODEL = new DirectColorModel(24, 0x00FF0000, 0xFF00, 0xFF);
     /** Color model mask */
     private static final int[] COLOR_MODEL_MASK = new int[] { COLOR_MODEL.getRedMask(), COLOR_MODEL.getGreenMask(), COLOR_MODEL.getBlueMask() };
+
+    /** Desktop device context */
+    private final WinDef.HDC DESKTOP = USER.GetDC(USER.GetDesktopWindow());
+    /** Device context */
+    private final WinDef.HDC DC = GDI.CreateCompatibleDC(DESKTOP);
 
     /** Capture record */
     public static record Capture(WinDef.HBITMAP bitmap, WinGDI.BITMAPINFO bitmapInfo, int x, int y, int width, int height, Memory memory) {}
@@ -43,7 +44,7 @@ public class DesktopCapture {
      * @param height Height
      * @return Capture record
      */
-    public static Capture setupCapture(int x, int y, int width, int height) {
+    public Capture setupCapture(int x, int y, int width, int height) {
         LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
         // create bitmap info
@@ -68,7 +69,7 @@ public class DesktopCapture {
      * @param capture Capture record
      * @return Screenshot
      */
-    public static BufferedImage screenshot(Capture capture) {
+    public BufferedImage screenshot(Capture capture) {
         LOGGER.finest("Taking screenshot of portion of screen: " + capture.x + ", " + capture.y + ", " + capture.width + ", " + capture.height);
 
         // copy desktop into bitmap
@@ -92,7 +93,7 @@ public class DesktopCapture {
      * Cleanup allocated resources from capture
      * @param capture Capture record
      */
-    public static void cleanupCapture(Capture capture) {
+    public void cleanupCapture(Capture capture) {
         LOGGER.fine("Cleaning up allocated resources from capture");
         capture.memory.close();
         capture.bitmapInfo.clear();

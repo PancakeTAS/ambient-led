@@ -9,11 +9,12 @@ import lombok.Setter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 /**
  * Main class
@@ -22,10 +23,26 @@ import java.util.logging.Logger;
 public class AmbientLed {
 
     /** Logger */
-    public static final Logger LOGGER = Logger.getLogger("Led");
+    public static final Logger LOGGER;
+    public static final Level LOG_LEVEL = Level.FINER;
+
+    static {
+        LOGGER = Logger.getLogger("Ambient Led");
+        LOGGER.setLevel(LOG_LEVEL);
+        LOGGER.setUseParentHandlers(false);
+
+        // create console handler
+        var handler = new ConsoleHandler();
+        handler.setFormatter(new Formatter() { @Override public String format(LogRecord record) { return formatMessage(record) + "\n"; } });
+        handler.setLevel(LOG_LEVEL);
+
+        // replace logger handlers
+        Arrays.stream(LOGGER.getHandlers()).forEach(LOGGER::removeHandler);
+        LOGGER.addHandler(handler);
+    }
 
     /** Executor service */
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(4);
     /** Tray menu items */
     private MenuItem pause = null, resume = null;
 

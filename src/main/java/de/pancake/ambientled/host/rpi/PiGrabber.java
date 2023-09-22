@@ -24,10 +24,12 @@ public class PiGrabber implements Runnable {
 
     /** Ambient led instance */
     private final AmbientLed led;
+    /** Desktop capture instance */
+    private final DesktopCapture dc = new DesktopCapture();
     /** Captures */
     private final DesktopCapture.Capture
-            TOP = DesktopCapture.setupCapture(0, 0, WIDTH, 180),
-            BOTTOM = DesktopCapture.setupCapture(0, HEIGHT - 180, WIDTH, 180);
+            TOP = this.dc.setupCapture(0, 0, WIDTH, 180),
+            BOTTOM = this.dc.setupCapture(0, HEIGHT - 180, WIDTH, 180);
 
     /**
      * Grab screen and calculate average color for each led
@@ -40,8 +42,8 @@ public class PiGrabber implements Runnable {
         var ms = System.currentTimeMillis();
 
         // capture screen
-        var top = DesktopCapture.screenshot(TOP);
-        var bottom = DesktopCapture.screenshot(BOTTOM);
+        var top = this.dc.screenshot(TOP);
+        var bottom = this.dc.screenshot(BOTTOM);
 
         // calculate average color for each led
         for (int i = 0; i < LEDS; i++) {
@@ -49,7 +51,7 @@ public class PiGrabber implements Runnable {
                     top,
                     WIDTH_PER_LED * i, 0,
                     WIDTH_PER_LED - 1, 180,
-                    2, false, false, true
+                    6, false, false, true
             );
 
             this.led.getPiUpdater().getColors()[i] = c;
@@ -60,7 +62,7 @@ public class PiGrabber implements Runnable {
                     bottom,
                     WIDTH_PER_LED * i, 0,
                     WIDTH_PER_LED - 1, 180,
-                    2, false, false, true
+                    6, false, false, true
             );
 
             this.led.getPiUpdater().getColors()[i+LEDS] = c;

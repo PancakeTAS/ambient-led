@@ -26,11 +26,13 @@ public class ArduinoGrabber implements Runnable {
 
     /** Ambient led instance */
     private final AmbientLed led;
+    /** Desktop capture instance */
+    private final DesktopCapture dc = new DesktopCapture();
     /** Captures */
     private final DesktopCapture.Capture
-            LEFT = DesktopCapture.setupCapture(3840, 0, 300, HEIGHT),
-            TOP = DesktopCapture.setupCapture(3840, 0, WIDTH, 180),
-            RIGHT = DesktopCapture.setupCapture(3840 + WIDTH - 300, 0, 300, HEIGHT);
+            LEFT = this.dc.setupCapture(3840, 0, 300, HEIGHT),
+            TOP = this.dc.setupCapture(3840, 0, WIDTH, 180),
+            RIGHT = this.dc.setupCapture(3840 + WIDTH - 300, 0, 300, HEIGHT);
 
     /**
      * Grab screen and calculate average color for each led
@@ -43,9 +45,9 @@ public class ArduinoGrabber implements Runnable {
         var ms = System.currentTimeMillis();
 
         // capture screen
-        var left = DesktopCapture.screenshot(LEFT);
-        var top = DesktopCapture.screenshot(TOP);
-        var right = DesktopCapture.screenshot(RIGHT);
+        var left = this.dc.screenshot(LEFT);
+        var top = this.dc.screenshot(TOP);
+        var right = this.dc.screenshot(RIGHT);
 
         // calculate average color for each led
         for (int i = 0; i < LEDS_SIDE; i++) {
@@ -53,7 +55,7 @@ public class ArduinoGrabber implements Runnable {
                     left,
                     0, HEIGHT_PER_LED * (LEDS_SIDE - i - 1),
                     300, HEIGHT_PER_LED - 1,
-                    2, true, false, true
+                    5, true, false, true
             );
 
             this.led.getArduinoUpdater().getColors()[i] = c;
@@ -64,7 +66,7 @@ public class ArduinoGrabber implements Runnable {
                     top,
                     WIDTH_PER_LED * i, 0,
                     WIDTH_PER_LED - 1, 180,
-                    2, true, false, true
+                    5, true, false, true
             );
 
             this.led.getArduinoUpdater().getColors()[i + LEDS_SIDE] = c;
@@ -75,7 +77,7 @@ public class ArduinoGrabber implements Runnable {
                     right,
                     0, HEIGHT_PER_LED * i,
                     300, HEIGHT_PER_LED - 1,
-                    2, true, false, true
+                    5, true, false, true
             );
 
             this.led.getArduinoUpdater().getColors()[i + LEDS_SIDE + LEDS_TOP] = c;
