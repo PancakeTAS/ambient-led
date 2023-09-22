@@ -2,6 +2,8 @@ package de.pancake.ambientled.host;
 
 import de.pancake.ambientled.host.arduino.ArduinoGrabber;
 import de.pancake.ambientled.host.arduino.ArduinoUpdater;
+import de.pancake.ambientled.host.rpi.PiGrabber;
+import de.pancake.ambientled.host.rpi.PiUpdater;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,6 +33,10 @@ public class AmbientLed {
     @Getter private final ArduinoUpdater arduinoUpdater = new ArduinoUpdater(this);
     /** Arduino grabber instance */
     @Getter private final ArduinoGrabber arduinoGrabber = new ArduinoGrabber(this);
+    /** Pi updater instance */
+    @Getter private final PiUpdater piUpdater = new PiUpdater(this);
+    /** Pi grabber instance */
+    @Getter private final PiGrabber piGrabber = new PiGrabber(this);
     /** Is ambient led paused */
     @Getter @Setter private volatile boolean paused = false;
 
@@ -63,6 +69,8 @@ public class AmbientLed {
         // start timers
         this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
     }
 
     /**

@@ -2,7 +2,6 @@ package de.pancake.ambientled.rpi;
 
 import com.diozero.ws281xj.rpiws281x.WS281x;
 
-import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -34,8 +33,8 @@ public class PiLed {
      * @param c Color
      * @throws IOException If the data couldn't be written
      */
-    public void write(int i, Color c) throws IOException {
-        this.led.setPixelColour(i, c.getRGB());
+    public void write(int i, byte r, byte g, byte b) throws IOException {
+        this.led.setPixelColour(i, Byte.toUnsignedInt(r) << 16 | Byte.toUnsignedInt(g) << 8 | Byte.toUnsignedInt(b));
     }
 
     /**
