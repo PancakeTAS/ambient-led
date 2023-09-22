@@ -25,7 +25,7 @@ public class AmbientLed {
     public static final Logger LOGGER = Logger.getLogger("Led");
 
     /** Executor service */
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(6);
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     /** Tray menu items */
     private MenuItem pause = null, resume = null;
 
@@ -67,9 +67,9 @@ public class AmbientLed {
         popup.add(this.trayEntry("Exit Program", i -> System.exit(0)));
 
         // start timers
-        this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 120, TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / 120, TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
     }
 
