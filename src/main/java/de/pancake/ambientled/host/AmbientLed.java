@@ -64,7 +64,15 @@ public class AmbientLed {
             this.resume.setEnabled(false);
         }))).setEnabled(false);
 
-        popup.add(this.trayEntry("Exit Program", i -> System.exit(0)));
+        popup.add(this.trayEntry("Exit Program", i -> {
+            try {
+                this.setPaused(true);
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.exit(0);
+        }));
 
         // start timers
         this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);

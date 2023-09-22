@@ -29,7 +29,8 @@ public class AmbientLedRpi {
         while (true) {
             var socket = this.serverSocket.accept();
             socket.setTcpNoDelay(true);
-            new Thread(() -> this.handle(socket), "Client Handler").start();
+            socket.setSoTimeout(5000);
+            this.handle(socket);
         }
     }
 
@@ -39,12 +40,19 @@ public class AmbientLedRpi {
      */
     @SneakyThrows
     private void handle(Socket s) {
-        var in = s.getInputStream();
-        var buffer = new byte[3*144];
-        while (in.read(buffer) != -1) {
-            for (int i = 0; i < 144; i++)
-                this.led.write(i, buffer[i*3], buffer[i*3+1], buffer[i*3+2]);
+        try (s; var in = s.getInputStream()) {
+            var buffer = new byte[3*144];
+            while (in.read(buffer) != -1) {
+                for (int i = 0; i < 144; i++)
+                    this.led.write(i, buffer[i*3], buffer[i*3+1], buffer[i*3+2]);
 
+                this.led.flush();
+            }
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        } finally {
+            this.led.clear();
+            this.led.clear();
             this.led.flush();
         }
     }

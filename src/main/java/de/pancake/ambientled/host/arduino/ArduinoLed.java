@@ -70,10 +70,11 @@ public class ArduinoLed {
 
     /**
      * Close the connection to the Arduino
-     * @throws IOException If the connection couldn't be closed
+     * @throws Exception If the connection couldn't be closed
      * @return null
      */
-    public ArduinoLed close() throws IOException {
+    public synchronized ArduinoLed close() throws Exception {
+        this.clear(); // idk either
         this.clear();
         this.flush();
         this.stream.close();
