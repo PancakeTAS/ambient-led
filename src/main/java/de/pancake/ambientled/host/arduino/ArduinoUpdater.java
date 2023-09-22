@@ -67,7 +67,7 @@ public class ArduinoUpdater implements Runnable {
      */
     private void reopen() {
         try {
-            Thread.sleep(200);
+            Thread.sleep(500);
             LOGGER.fine("Reopening connection to Arduino");
             this.arduino = new ArduinoLed("Arduino");
         } catch (Exception e) {

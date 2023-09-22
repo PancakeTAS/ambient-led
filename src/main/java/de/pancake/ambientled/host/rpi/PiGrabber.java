@@ -28,8 +28,8 @@ public class PiGrabber implements Runnable {
     private final DesktopCapture dc = new DesktopCapture();
     /** Captures */
     private final DesktopCapture.Capture
-            TOP = this.dc.setupCapture(0, 0, WIDTH, 180),
-            BOTTOM = this.dc.setupCapture(0, HEIGHT - 180, WIDTH, 180);
+            TOP = this.dc.setupCapture(0, 0, WIDTH, 90),
+            BOTTOM = this.dc.setupCapture(0, HEIGHT - 90, WIDTH, 90);
 
     /**
      * Grab screen and calculate average color for each led
@@ -47,25 +47,19 @@ public class PiGrabber implements Runnable {
 
         // calculate average color for each led
         for (int i = 0; i < LEDS; i++) {
-            var c = ColorUtil.average(
+            this.led.getPiUpdater().getColors()[i] = ColorUtil.average(
                     top,
                     WIDTH_PER_LED * i, 0,
-                    WIDTH_PER_LED - 1, 180,
-                    6, false, false, true
+                    WIDTH_PER_LED - 1, 90,
+                    6, true
             );
 
-            this.led.getPiUpdater().getColors()[i] = c;
-        }
-
-        for (int i = 0; i < LEDS; i++) {
-            var c = ColorUtil.average(
+            this.led.getPiUpdater().getColors()[i+LEDS] = ColorUtil.average(
                     bottom,
                     WIDTH_PER_LED * i, 0,
-                    WIDTH_PER_LED - 1, 180,
-                    6, false, false, true
+                    WIDTH_PER_LED - 1, 90,
+                    6, true
             );
-
-            this.led.getPiUpdater().getColors()[i+LEDS] = c;
         }
 
         LOGGER.finer("Grabbed screen for raspberry pi in " + (System.currentTimeMillis() - ms) + "ms");

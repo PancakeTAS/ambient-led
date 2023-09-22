@@ -17,15 +17,11 @@ public class ColorUtil {
      * @param width Width
      * @param height Height
      * @param step Step size
-     * @param reduceGreen Reduce brightness of the green
-     * @param reduceBlue Reduce brightness of the blue
      * @param reduceBrightness Adjust max brightness to 355
      * @return Average color
      */
-    public static Color average(BufferedImage image, int startX, int startY, int width, int height, int step, boolean reduceGreen, boolean reduceBlue, boolean reduceBrightness) {
-        int total = (width * height) / (step * step);
-
-        int red_total = 0, green_total = 0, blue_total = 0;
+    public static Color average(BufferedImage image, int startX, int startY, int width, int height, int step, boolean reduceBrightness) {
+        int total = 0, red_total = 0, green_total = 0, blue_total = 0;
 
         // iterate through each pixel of the image with the given step size
         for (int x = startX; x < startX + width; x += step) {
@@ -34,6 +30,7 @@ public class ColorUtil {
                 red_total += c.getRed();
                 green_total += c.getGreen();
                 blue_total += c.getBlue();
+                total++;
             }
         }
 
@@ -41,14 +38,6 @@ public class ColorUtil {
         var red = red_total / total;
         var green = green_total / total;
         var blue = blue_total / total;
-
-        // reduce brightness of the green (because green wall)
-        if (reduceGreen)
-            green = (int) (green * 0.75);
-
-        // reduce brightness of the blue (because stupid led strip)
-        if (reduceBlue)
-            blue = (int) (blue * 0.75);
 
         // reduce overall brightness (because arduino)
         if (red + green + blue > 355 && reduceBrightness) {

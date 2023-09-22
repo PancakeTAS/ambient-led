@@ -73,6 +73,7 @@ public class PiController {
      */
     public PiController close() throws IOException {
         LOGGER.fine("Closing raspberry pi led strip on port " + this.port);
+        this.clear(); // idk either
         this.clear();
         this.stream.close();
         this.socket.close();

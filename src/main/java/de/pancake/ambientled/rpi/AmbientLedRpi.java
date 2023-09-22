@@ -51,8 +51,11 @@ public class AmbientLedRpi {
         } catch (Exception e) {
             e.printStackTrace(System.err);
         } finally {
+            Thread.sleep(200);
             this.led.clear();
+            Thread.sleep(200);
             this.led.clear();
+            Thread.sleep(200);
             this.led.flush();
         }
     }

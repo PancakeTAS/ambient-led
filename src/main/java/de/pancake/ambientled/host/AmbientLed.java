@@ -24,7 +24,7 @@ public class AmbientLed {
 
     /** Logger */
     public static final Logger LOGGER;
-    public static final Level LOG_LEVEL = Level.FINER;
+    public static final Level LOG_LEVEL = Level.FINE;
 
     static {
         LOGGER = Logger.getLogger("Ambient Led");
