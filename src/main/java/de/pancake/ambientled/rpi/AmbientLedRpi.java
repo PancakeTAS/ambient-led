@@ -19,11 +19,13 @@ public class AmbientLedRpi {
 
     /**
      * Initialize rpi server
+     * @param port Port to listen on
+     * @param gpio GPIO pin to use
      * @throws Exception If server socket can't be initialized
      */
-    private AmbientLedRpi() throws Exception {
-        this.serverSocket = new ServerSocket(5163);
-        this.led = new PiLed(18);
+    private AmbientLedRpi(int port, int gpio) throws Exception {
+        this.serverSocket = new ServerSocket(port);
+        this.led = new PiLed(gpio);
         while (true) {
             var socket = this.serverSocket.accept();
             socket.setTcpNoDelay(true);
@@ -47,5 +49,5 @@ public class AmbientLedRpi {
         }
     }
 
-    public static void main(String[] args) throws Exception { new AmbientLedRpi(); }
+    public static void main(String[] args) throws Exception { new AmbientLedRpi(Integer.parseInt(args[0]), Integer.parseInt(args[1])); }
 }
