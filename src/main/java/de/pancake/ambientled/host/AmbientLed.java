@@ -67,9 +67,9 @@ public class AmbientLed {
         popup.add(this.trayEntry("Exit Program", i -> System.exit(0)));
 
         // start timers
-        this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 120, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / 120, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
     }
 

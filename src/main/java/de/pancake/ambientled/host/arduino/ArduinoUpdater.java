@@ -1,7 +1,6 @@
 package de.pancake.ambientled.host.arduino;
 
 import de.pancake.ambientled.host.AmbientLed;
-import de.pancake.ambientled.host.arduino.ArduinoLed;
 import de.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
@@ -53,7 +52,7 @@ public class ArduinoUpdater implements Runnable {
 
             // lerp and update colors
             for (int i = 0; i < colors.length; i++)
-                this.arduino.write(i, final_colors[i] = ColorUtil.lerp(colors[i], final_colors[i], .5));
+                this.arduino.write(i, final_colors[i] = ColorUtil.lerp(colors[i], final_colors[i], .25));
             this.arduino.flush();
         } catch (Exception e) {
             LOGGER.severe(e.getMessage());

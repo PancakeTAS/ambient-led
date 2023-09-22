@@ -52,7 +52,7 @@ public class PiUpdater implements Runnable {
 
             // lerp and update colors
             for (int i = 0; i < colors.length; i++)
-                final_colors[i] = ColorUtil.lerp(colors[i], final_colors[i], .5);
+                final_colors[i] = ColorUtil.lerp(colors[i], final_colors[i], .25);
 
             this.pi.write(final_colors);
         } catch (Exception e) {
