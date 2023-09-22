@@ -20,6 +20,8 @@ public class PiController {
     private Socket socket;
     /** Output stream */
     private OutputStream stream;
+    /** Buffer */
+    private final byte[] buf = new byte[144*3];
 
     /**
      * Initialize led strip controller
@@ -31,6 +33,7 @@ public class PiController {
         this.ip = ip;
         this.port = port;
         this.socket = new Socket(this.ip, this.port);
+        this.socket.setTcpNoDelay(true);
         this.stream = this.socket.getOutputStream();
     }
 
@@ -51,9 +54,13 @@ public class PiController {
      * @throws IOException If the data couldn't be written
      */
     public void write(Color[] colors) throws IOException {
-        for (var c : colors)
-            this.stream.write(new byte[]{(byte) (c.getRed() & 0xFF), (byte) (c.getGreen() & 0xFF), (byte) (c.getBlue() & 0xFF)}, 0, 3);
+        for (int i = 0; i < colors.length; i++) {
+            this.buf[i * 3] = (byte) (colors[i].getRed() & 0xFF);
+            this.buf[i * 3 + 1] = (byte) (colors[i].getGreen() & 0xFF);
+            this.buf[i * 3 + 2] = (byte) (colors[i].getBlue() & 0xFF);
+        }
 
+        this.stream.write(this.buf);
         this.stream.flush();
     }
 
