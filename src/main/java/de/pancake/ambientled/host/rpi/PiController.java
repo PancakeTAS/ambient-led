@@ -4,7 +4,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 /**
  * Led controller for Arduino based led strips

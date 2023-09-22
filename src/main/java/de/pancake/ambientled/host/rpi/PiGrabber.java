@@ -5,11 +5,6 @@ import de.pancake.ambientled.host.util.ColorUtil;
 import de.pancake.ambientled.host.util.DesktopCapture;
 import lombok.RequiredArgsConstructor;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.nio.Buffer;
-
 /**
  * Raspberry Pi screen grabber class
  * @author Pancake
