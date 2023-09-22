@@ -42,10 +42,16 @@ tasks.register('uploadRpi', Exec) {
     commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.54:/home/pancake/ambientled/".split(" ")
 }
 
-tasks.register('restartRpi', Exec) {
+tasks.register('restartRpi1', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh pancake@192.168.178.54 sudo systemctl restart ambientled".split(" ")
+    commandLine "ssh pancake@192.168.178.54 sudo systemctl restart ambientled1".split(" ")
+}
+
+tasks.register('restartRpi2', Exec) {
+    workingDir "${buildDir}/libs"
+    commandLine "ssh pancake@192.168.178.54 sudo systemctl restart ambientled2".split(" ")
 }
 
 uploadRpi.dependsOn shadowJar
-restartRpi.dependsOn uploadRpi
+restartRpi1.dependsOn uploadRpi
+restartRpi2.dependsOn restartRpi1

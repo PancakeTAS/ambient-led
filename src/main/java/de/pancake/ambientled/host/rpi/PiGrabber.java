@@ -5,6 +5,11 @@ import de.pancake.ambientled.host.util.ColorUtil;
 import de.pancake.ambientled.host.util.DesktopCapture;
 import lombok.RequiredArgsConstructor;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.nio.Buffer;
+
 /**
  * Raspberry Pi screen grabber class
  * @author Pancake
@@ -25,7 +30,7 @@ public class PiGrabber implements Runnable {
     /** Captures */
     private final DesktopCapture.Capture
             TOP = DesktopCapture.setupCapture(0, 0, WIDTH, 180),
-            BOTTOM = DesktopCapture.setupCapture(0, HEIGHT - 180, WIDTH, 180);
+            BOTTOM = DesktopCapture.setupCapture(0, HEIGHT - 181, WIDTH, 180);
 
     /**
      * Grab screen and calculate average color for each led
@@ -49,6 +54,17 @@ public class PiGrabber implements Runnable {
             );
 
             this.led.getPiUpdater().getColors()[i] = c;
+        }
+
+        for (int i = 0; i < LEDS; i++) {
+            var c = ColorUtil.average(
+                    bottom,
+                    WIDTH_PER_LED * i, 0,
+                    WIDTH_PER_LED - 1, 180,
+                    2, false, false, true
+            );
+
+            this.led.getPiUpdater().getColors()[i+LEDS] = c;
         }
 
     }
