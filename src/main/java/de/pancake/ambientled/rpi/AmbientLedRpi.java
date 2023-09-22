@@ -1,8 +1,9 @@
 package de.pancake.ambientled.rpi;
 
-import java.awt.*;
-import java.io.InputStream;
+import lombok.SneakyThrows;
+
 import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * Main class for Raspberry Pi
@@ -22,29 +23,25 @@ public class AmbientLedRpi {
      */
     private AmbientLedRpi() throws Exception {
         this.serverSocket = new ServerSocket(5163);
-        this.led = new PiLed(10);
-
-        while (this.serverSocket.isBound()) {
-            try (var socket = this.serverSocket.accept()) {
-                socket.setTcpNoDelay(true);
-                handle(socket.getInputStream());
-            } catch (Exception e) {
-                System.err.println("Error while handling client:");
-                e.printStackTrace(System.err);
-            }
+        this.led = new PiLed(18);
+        while (true) {
+            var socket = this.serverSocket.accept();
+            socket.setTcpNoDelay(true);
+            new Thread(() -> this.handle(socket), "Client Handler").start();
         }
     }
 
     /**
      * Handle incoming client
-     * @param in Input stream of client
-     * @throws Exception If an error occurs while handling client
+     * @param socket Client socket
      */
-    private void handle(InputStream in) throws Exception {
-        byte[] buffer = new byte[3*144];
+    @SneakyThrows
+    private void handle(Socket s) {
+        var in = s.getInputStream();
+        var buffer = new byte[3*144];
         while (in.read(buffer) != -1) {
             for (int i = 0; i < 144; i++)
-                this.led.write(i, new Color(buffer[3*i] & 0xFF, buffer[3*i+1] & 0xFF, buffer[3*i+2] & 0xFF));
+                this.led.write(i, buffer[i*3], buffer[i*3+1], buffer[i*3+2]);
 
             this.led.flush();
         }
