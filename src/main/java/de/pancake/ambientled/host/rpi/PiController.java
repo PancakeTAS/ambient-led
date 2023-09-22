@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import static de.pancake.ambientled.host.AmbientLed.LOGGER;
+
 /**
  * Led controller for Arduino based led strips
  * @author Pancake
@@ -29,6 +31,7 @@ public class PiController {
      * @throws Exception If the connection couldn't be established
      */
     public PiController(String ip, int port) throws Exception {
+        LOGGER.fine("Initializing raspberry pi led strip");
         this.ip = ip;
         this.port = port;
         this.socket = new Socket(this.ip, this.port);
@@ -69,6 +72,7 @@ public class PiController {
      * @return null
      */
     public PiController close() throws IOException {
+        LOGGER.fine("Closing raspberry pi led strip on port " + this.port);
         this.clear();
         this.stream.close();
         this.socket.close();

@@ -5,6 +5,8 @@ import de.pancake.ambientled.host.util.ColorUtil;
 import de.pancake.ambientled.host.util.DesktopCapture;
 import lombok.RequiredArgsConstructor;
 
+import static de.pancake.ambientled.host.AmbientLed.LOGGER;
+
 /**
  * Arduino screen grabber class
  * @author Pancake
@@ -37,6 +39,8 @@ public class ArduinoGrabber implements Runnable {
     public void run() {
         if (this.led.isPaused())
             return;
+
+        var ms = System.currentTimeMillis();
 
         // capture screen
         var left = DesktopCapture.screenshot(LEFT);
@@ -76,6 +80,8 @@ public class ArduinoGrabber implements Runnable {
 
             this.led.getArduinoUpdater().getColors()[i + LEDS_SIDE + LEDS_TOP] = c;
         }
+
+        LOGGER.finer("Grabbed screen for arduino in " + (System.currentTimeMillis() - ms) + "ms");
     }
 
 }

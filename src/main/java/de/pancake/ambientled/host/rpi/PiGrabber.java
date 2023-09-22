@@ -5,6 +5,8 @@ import de.pancake.ambientled.host.util.ColorUtil;
 import de.pancake.ambientled.host.util.DesktopCapture;
 import lombok.RequiredArgsConstructor;
 
+import static de.pancake.ambientled.host.AmbientLed.LOGGER;
+
 /**
  * Raspberry Pi screen grabber class
  * @author Pancake
@@ -35,6 +37,8 @@ public class PiGrabber implements Runnable {
         if (this.led.isPaused())
             return;
 
+        var ms = System.currentTimeMillis();
+
         // capture screen
         var top = DesktopCapture.screenshot(TOP);
         var bottom = DesktopCapture.screenshot(BOTTOM);
@@ -62,6 +66,7 @@ public class PiGrabber implements Runnable {
             this.led.getPiUpdater().getColors()[i+LEDS] = c;
         }
 
+        LOGGER.finer("Grabbed screen for raspberry pi in " + (System.currentTimeMillis() - ms) + "ms");
     }
 
 }

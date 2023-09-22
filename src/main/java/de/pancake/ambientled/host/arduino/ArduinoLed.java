@@ -6,6 +6,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static de.pancake.ambientled.host.AmbientLed.LOGGER;
+
 /**
  * Led controller for Arduino based led strips
  * @author Pancake
@@ -22,6 +24,7 @@ public class ArduinoLed {
      * @throws Exception If the com port couldn't be opened
      */
     public ArduinoLed(String name) throws Exception {
+        LOGGER.fine("Initializing arduino led strip");
         this.name = name;
         this.device = this.findComPort();
         this.device.openPort();
@@ -74,6 +77,7 @@ public class ArduinoLed {
      * @return null
      */
     public synchronized ArduinoLed close() throws Exception {
+        LOGGER.fine("Closing arduino led strip");
         this.clear(); // idk either
         this.clear();
         this.flush();

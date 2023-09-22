@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 
@@ -55,7 +56,7 @@ public class ArduinoUpdater implements Runnable {
                 this.arduino.write(i, final_colors[i] = ColorUtil.lerp(colors[i], final_colors[i], .5));
             this.arduino.flush();
         } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
+            LOGGER.log(Level.WARNING, e.getMessage());
             this.reopen();
         }
 
@@ -66,7 +67,7 @@ public class ArduinoUpdater implements Runnable {
      */
     private void reopen() {
         try {
-            Thread.sleep(500);
+            Thread.sleep(200);
             LOGGER.info("Reopening connection to Arduino");
             this.arduino = new ArduinoLed("Arduino");
         } catch (Exception e) {

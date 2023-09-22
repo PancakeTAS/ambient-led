@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 
@@ -66,7 +67,7 @@ public class PiUpdater implements Runnable {
             this.piTop.write(final_colors_top);
             this.piBottom.write(final_colors_bottom);
         } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
+            LOGGER.log(Level.WARNING, e.getMessage());
             this.reconnect();
         }
 

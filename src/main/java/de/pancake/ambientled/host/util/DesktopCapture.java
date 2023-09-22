@@ -11,6 +11,8 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.Raster;
 
+import static de.pancake.ambientled.host.AmbientLed.LOGGER;
+
 /**
  * Utility class for capturing the desktop
  * @author Pancake
@@ -42,6 +44,8 @@ public class DesktopCapture {
      * @return Capture record
      */
     public static Capture setupCapture(int x, int y, int width, int height) {
+        LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
+
         // create bitmap info
         var bitmapInfo = new WinGDI.BITMAPINFO();
         bitmapInfo.bmiHeader.biWidth = width;
@@ -65,6 +69,8 @@ public class DesktopCapture {
      * @return Screenshot
      */
     public static BufferedImage screenshot(Capture capture) {
+        LOGGER.finest("Taking screenshot of portion of screen: " + capture.x + ", " + capture.y + ", " + capture.width + ", " + capture.height);
+
         // copy desktop into bitmap
         GDI.SelectObject(DC, capture.bitmap);
         GDI.BitBlt(DC, 0, 0, capture.width, capture.height, DESKTOP, capture.x, capture.y, GDI32.SRCCOPY);
@@ -87,6 +93,7 @@ public class DesktopCapture {
      * @param capture Capture record
      */
     public static void cleanupCapture(Capture capture) {
+        LOGGER.fine("Cleaning up allocated resources from capture");
         capture.memory.close();
         capture.bitmapInfo.clear();
         GDI.DeleteObject(capture.bitmap);

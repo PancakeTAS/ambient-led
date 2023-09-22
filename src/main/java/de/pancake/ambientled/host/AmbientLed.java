@@ -46,6 +46,7 @@ public class AmbientLed {
      */
     private AmbientLed() throws Exception {
         // create tray icon
+        LOGGER.info("Initializing tray icon");
         var icon = new TrayIcon(new ImageIcon(AmbientLed.class.getResource("/tray.png")).getImage());
         var tray = SystemTray.getSystemTray();
         var popup = new PopupMenu();
@@ -54,11 +55,13 @@ public class AmbientLed {
 
         // setup tray icons
         (this.pause = popup.add(this.trayEntry("Pause", i -> {
+            LOGGER.info("Pausing...");
             this.paused = true;
             this.pause.setEnabled(false);
             this.resume.setEnabled(true);
         }))).setEnabled(true);
         (this.resume = popup.add(this.trayEntry("Resume", i -> {
+            LOGGER.info("Resuming...");
             this.paused = false;
             this.pause.setEnabled(true);
             this.resume.setEnabled(false);
@@ -66,8 +69,9 @@ public class AmbientLed {
 
         popup.add(this.trayEntry("Exit Program", i -> {
             try {
+                LOGGER.info("Exiting...");
                 this.setPaused(true);
-                Thread.sleep(1000);
+                Thread.sleep(250);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -75,10 +79,13 @@ public class AmbientLed {
         }));
 
         // start timers
+        LOGGER.info("Launching arduino and raspberry pi services");
         this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
+
+        LOGGER.info("Initialization complete");
     }
 
     /**
