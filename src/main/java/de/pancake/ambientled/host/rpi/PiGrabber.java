@@ -25,7 +25,7 @@ public class PiGrabber implements Runnable {
     /** Captures */
     private final DesktopCapture.Capture
             TOP = DesktopCapture.setupCapture(0, 0, WIDTH, 180),
-            BOTTOM = DesktopCapture.setupCapture(0, HEIGHT - 181, WIDTH, 180);
+            BOTTOM = DesktopCapture.setupCapture(0, HEIGHT - 180, WIDTH, 180);
 
     /**
      * Grab screen and calculate average color for each led
