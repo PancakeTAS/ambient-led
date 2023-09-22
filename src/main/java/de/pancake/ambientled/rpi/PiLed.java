@@ -1,5 +1,6 @@
 package de.pancake.ambientled.rpi;
 
+import com.diozero.ws281xj.StripType;
 import com.diozero.ws281xj.rpiws281x.WS281x;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class PiLed {
      * @param gpio GPIO pin
      */
     public PiLed(int gpio) {
-        this.led = new WS281x(gpio, 255, 144);
+        this.led = new WS281x(800_000, 5, gpio, 255, 144, StripType.WS2812, gpio == 13 ? 1 : 0);
     }
 
     /**
