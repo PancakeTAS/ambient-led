@@ -16,7 +16,7 @@ import static de.pancake.ambientled.host.AmbientLed.LOGGER;
  */
 public class ArduinoUpdater implements Runnable {
 
-    /** Max brightness of all leds divided by number of them*/
+    /** Max brightness of all leds divided by number of them */
     public static int MAX_BRIGHTNESS = 165;
     /** Brightness modifiers of red, green and blue leds */
     public static float R_BRIGHTNESS = 1.0f, G_BRIGHTNESS = 0.7f, B_BRIGHTNESS = 1.0f;
@@ -65,7 +65,7 @@ public class ArduinoUpdater implements Runnable {
 
             // reduce max brightness
             max = (int) (max / (double) final_colors.length);
-            float reduction = Math.min(1, MAX_BRIGHTNESS / Math.max(1.0f, max));
+            var reduction = Math.min(1, MAX_BRIGHTNESS / Math.max(1.0f, max));
             for (int i = 0; i < final_colors.length; i++) {
                 var c = final_colors[i];
                 this.arduino.write(i, new Color((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction)));

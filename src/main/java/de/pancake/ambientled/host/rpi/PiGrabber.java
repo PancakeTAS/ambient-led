@@ -51,14 +51,14 @@ public class PiGrabber implements Runnable {
                     top,
                     WIDTH_PER_LED * i, 0,
                     WIDTH_PER_LED - 1, 90,
-                    6, true
+                    6, false
             );
 
             this.led.getPiUpdater().getColors()[i+LEDS] = ColorUtil.average(
                     bottom,
                     WIDTH_PER_LED * i, 0,
                     WIDTH_PER_LED - 1, 90,
-                    6, true
+                    6, false
             );
         }
 

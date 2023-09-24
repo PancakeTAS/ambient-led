@@ -55,11 +55,11 @@ public class PiController {
      * @param colors Colors with a length of 144
      * @throws IOException If the data couldn't be written
      */
-    public void write(Color[] colors) throws IOException {
-        for (int i = 0; i < colors.length; i++) {
-            this.buf[i * 3] = (byte) (colors[i].getRed() & 0xFF);
-            this.buf[i * 3 + 1] = (byte) (colors[i].getGreen() & 0xFF);
-            this.buf[i * 3 + 2] = (byte) (colors[i].getBlue() & 0xFF);
+    public void write(Color[] colors, int index, int len) throws IOException {
+        for (int i = 0; i < len; i++) {
+            this.buf[i * 3] = (byte) (colors[i + index].getRed() & 0xFF);
+            this.buf[i * 3 + 1] = (byte) (colors[i + index].getGreen() & 0xFF);
+            this.buf[i * 3 + 2] = (byte) (colors[i + index].getBlue() & 0xFF);
         }
 
         this.stream.write(this.buf);
