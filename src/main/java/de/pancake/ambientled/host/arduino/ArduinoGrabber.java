@@ -14,15 +14,14 @@ import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 @RequiredArgsConstructor
 public class ArduinoGrabber implements Runnable {
 
-    // Scaled screen size
-    private static final int WIDTH = 3840;
-    private static final int HEIGHT = 2160;
-    // Amount of LEDs on each side
-    private static final int LEDS_SIDE = 55;
-    private static final int LEDS_TOP = 75;
-    // Size of each LED in pixels
-    private static final int HEIGHT_PER_LED = HEIGHT / LEDS_SIDE;
-    private static final int WIDTH_PER_LED = WIDTH / LEDS_TOP;
+    /** Width and height of the screen */
+    private static final int WIDTH = 3840, HEIGHT = 2160;
+    private static final int LEDS_RIGHT = 47, LEDS_TOP = 76, LEDS_LEFT = 57;
+    /** Width and height per led */
+    private static final int
+            R_HEIGHT_PER_LED = HEIGHT / LEDS_RIGHT,
+            WIDTH_PER_LED = WIDTH / LEDS_TOP,
+            L_HEIGHT_PER_LED = HEIGHT / LEDS_LEFT;
 
     /** Ambient led instance */
     private final AmbientLed led;
@@ -51,11 +50,11 @@ public class ArduinoGrabber implements Runnable {
             var right = this.dc.screenshot(RIGHT);
 
             // calculate average color for each led
-            for (int i = 0; i < LEDS_SIDE; i++) {
+            for (int i = 0; i < LEDS_RIGHT; i++) {
                 var c = ColorUtil.average(
-                        left,
-                        0, HEIGHT_PER_LED * (LEDS_SIDE - i - 1),
-                        300, HEIGHT_PER_LED - 1,
+                        right,
+                        0, R_HEIGHT_PER_LED * (LEDS_RIGHT - i - 1),
+                        300, R_HEIGHT_PER_LED - 1,
                         5, false
                 );
 
@@ -65,24 +64,25 @@ public class ArduinoGrabber implements Runnable {
             for (int i = 0; i < LEDS_TOP; i++) {
                 var c = ColorUtil.average(
                         top,
-                        WIDTH_PER_LED * i, 0,
+                        WIDTH_PER_LED * (LEDS_TOP - i - 1), 0,
                         WIDTH_PER_LED - 1, 180,
                         5, false
                 );
 
-                this.led.getArduinoUpdater().getColors()[i + LEDS_SIDE] = c;
+                this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT] = c;
             }
 
-            for (int i = 0; i < LEDS_SIDE - 5; i++) {
+            for (int i = 0; i < LEDS_LEFT; i++) {
                 var c = ColorUtil.average(
-                        right,
-                        0, HEIGHT_PER_LED * i,
-                        300, HEIGHT_PER_LED - 1,
+                        left,
+                        0, L_HEIGHT_PER_LED * i,
+                        300, L_HEIGHT_PER_LED - 1,
                         5, false
                 );
 
-                this.led.getArduinoUpdater().getColors()[i + LEDS_SIDE + LEDS_TOP] = c;
+                this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT + LEDS_TOP] = c;
             }
+
 
             LOGGER.finer("Grabbed screen for arduino in " + (System.currentTimeMillis() - ms) + "ms");
         } catch (Exception e) {
