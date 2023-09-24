@@ -16,6 +16,11 @@ import static de.pancake.ambientled.host.AmbientLed.LOGGER;
  */
 public class ArduinoUpdater implements Runnable {
 
+    /** Max brightness of all leds divided by number of them*/
+    public static int MAX_BRIGHTNESS = 165;
+    /** Brightness modifiers of red, green and blue leds */
+    public static float R_BRIGHTNESS = 1.0f, G_BRIGHTNESS = 0.7f, B_BRIGHTNESS = 1.0f;
+
     /** Ambient led instance */
     private final AmbientLed led;
     /** Arduino led instance */
@@ -52,8 +57,20 @@ public class ArduinoUpdater implements Runnable {
             }
 
             // lerp and update colors
-            for (int i = 0; i < colors.length; i++)
-                this.arduino.write(i, final_colors[i] = ColorUtil.lerp(colors[i], final_colors[i], .5));
+            int max = 0;
+            for (int i = 0; i < colors.length; i++) {
+                final_colors[i] = ColorUtil.lerp(new Color((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS)), final_colors[i], 0.5f);
+                max += final_colors[i].getRed() + final_colors[i].getGreen() + final_colors[i].getBlue();
+            }
+
+            // reduce max brightness
+            max = (int) (max / (double) final_colors.length);
+            float reduction = Math.min(1, MAX_BRIGHTNESS / Math.max(1.0f, max));
+            for (int i = 0; i < final_colors.length; i++) {
+                var c = final_colors[i];
+                this.arduino.write(i, new Color((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction)));
+            }
+
             this.arduino.flush();
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getMessage());
