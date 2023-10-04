@@ -55,7 +55,7 @@ public class ArduinoGrabber implements Runnable {
                         right,
                         0, R_HEIGHT_PER_LED * (LEDS_RIGHT - i - 1),
                         300, R_HEIGHT_PER_LED - 1,
-                        5, false
+                        5
                 );
 
                 this.led.getArduinoUpdater().getColors()[i] = c;
@@ -66,7 +66,7 @@ public class ArduinoGrabber implements Runnable {
                         top,
                         WIDTH_PER_LED * (LEDS_TOP - i - 1), 0,
                         WIDTH_PER_LED - 1, 180,
-                        5, false
+                        5
                 );
 
                 this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT] = c;
@@ -77,7 +77,7 @@ public class ArduinoGrabber implements Runnable {
                         left,
                         0, L_HEIGHT_PER_LED * i,
                         300, L_HEIGHT_PER_LED - 1,
-                        5, false
+                        5
                 );
 
                 this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT + LEDS_TOP] = c;

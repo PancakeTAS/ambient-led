@@ -17,10 +17,9 @@ public class ColorUtil {
      * @param width Width
      * @param height Height
      * @param step Step size
-     * @param reduceBrightness Adjust max brightness to 355
      * @return Average color
      */
-    public static Color average(BufferedImage image, int startX, int startY, int width, int height, int step, boolean reduceBrightness) {
+    public static Color average(BufferedImage image, int startX, int startY, int width, int height, int step) {
         int total = 0, red_total = 0, green_total = 0, blue_total = 0;
 
         // iterate through each pixel of the image with the given step size
@@ -34,19 +33,7 @@ public class ColorUtil {
             }
         }
 
-        // calculate average color of the image
-        var red = red_total / total;
-        var green = green_total / total;
-        var blue = blue_total / total;
-
-        // reduce overall brightness (because arduino)
-        if (red + green + blue > 355 && reduceBrightness) {
-            red /= 4;
-            green /= 4;
-            blue /= 4;
-        }
-
-        return new Color(red, green, blue);
+        return new Color( red_total / total, green_total / total, blue_total / total);
     }
 
     /**
