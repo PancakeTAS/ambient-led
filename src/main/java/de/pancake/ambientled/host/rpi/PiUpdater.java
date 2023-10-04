@@ -17,7 +17,7 @@ import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 public class PiUpdater implements Runnable {
 
     /** Max brightness of all leds divided by number of them */
-    public static int MAX_BRIGHTNESS = 200;
+    public static int MAX_BRIGHTNESS = 140;
     /** Brightness modifiers of red, green and blue leds */
     public static float R_BRIGHTNESS = 1.0f, G_BRIGHTNESS = 1.0f, B_BRIGHTNESS = 1.0f;
 

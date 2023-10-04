@@ -17,7 +17,7 @@ import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 public class ArduinoUpdater implements Runnable {
 
     /** Max brightness of all leds divided by number of them */
-    public static int MAX_BRIGHTNESS = 165;
+    public static int MAX_BRIGHTNESS = 140;
     /** Brightness modifiers of red, green and blue leds */
     public static float R_BRIGHTNESS = 1.0f, G_BRIGHTNESS = 0.7f, B_BRIGHTNESS = 1.0f;
 
