@@ -17,14 +17,14 @@ import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 public class PiUpdater implements Runnable {
 
     /** Max brightness of all leds divided by number of them */
-    public static int MAX_BRIGHTNESS = 140;
+    public static int MAX_BRIGHTNESS_1 = 400, MAX_BRIGHTNESS_2 = 300;
     /** Brightness modifiers of red, green and blue leds */
     public static float R_BRIGHTNESS = 1.0f, G_BRIGHTNESS = 1.0f, B_BRIGHTNESS = 1.0f;
 
     /** Ambient led instance */
     private final AmbientLed led;
     /** Pi controller instance */
-    private PiController piTop, piBottom;
+    private PiController pi, pi2;
     /** Colors */
     @Getter private final Color[] colors = new Color[288];
     /** Interpolated colors */
@@ -54,11 +54,11 @@ public class PiUpdater implements Runnable {
         try {
             // disconnect pi on pause
             if (this.led.isPaused()) {
-                if (this.piTop != null)
-                    this.piTop = this.piTop.close();
+                if (this.pi != null)
+                    this.pi = this.pi.close();
 
-                if (this.piBottom != null)
-                    this.piBottom = this.piBottom.close();
+                if (this.pi2 != null)
+                    this.pi2 = this.pi2.close();
 
                 return;
             }
@@ -69,17 +69,24 @@ public class PiUpdater implements Runnable {
                 final_colors[i] = ColorUtil.lerp(new Color((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS)), final_colors[i], .5);
                 max += final_colors[i].getRed() + final_colors[i].getGreen() + final_colors[i].getBlue();
             }
-
-            // reduce max brightness
             max = (int) (max / (double) final_colors.length);
-            var reduction = Math.min(1, MAX_BRIGHTNESS / Math.max(1.0f, max));
-            for (int i = 0; i < final_colors.length; i++) {
+
+            // reduce max brightness for first 144 leds
+            var reduction = Math.min(1, MAX_BRIGHTNESS_1 / Math.max(1.0f, max));
+            for (int i = 0; i < 144; i++) {
                 var c = final_colors[i];
                 this.final_reduced_colors[i] = new Color((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction));
             }
 
-            this.piTop.write(this.final_reduced_colors, 0, 144);
-            this.piBottom.write(this.final_reduced_colors, 144, 144);
+            // reduce max brightness for last 144 leds
+            reduction = Math.min(1, MAX_BRIGHTNESS_2 / Math.max(1.0f, max));
+            for (int i = 144; i < 288; i++) {
+                var c = final_colors[i];
+                this.final_reduced_colors[i] = new Color((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction));
+            }
+
+            this.pi.write(this.final_reduced_colors, 0, 144);
+            this.pi2.write(this.final_reduced_colors, 144, 144);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, e.getMessage());
             this.reconnect();
@@ -93,8 +100,8 @@ public class PiUpdater implements Runnable {
     private void reconnect() {
         try {
             LOGGER.fine("Reopening connection to Raspberry Pi");
-            this.piTop = new PiController("192.168.178.54", 5163);
-            this.piBottom = new PiController("192.168.178.54", 5164);
+            this.pi = new PiController("192.168.178.53", 5163);
+            this.pi2 = new PiController("192.168.178.57", 5164);
         } catch (Exception e) {
             this.reconnect(); // try again
         }

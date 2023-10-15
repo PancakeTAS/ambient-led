@@ -37,21 +37,27 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
-tasks.register('uploadRpi', Exec) {
+tasks.register('uploadRpi1', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.54:/home/pancake/ambientled/".split(" ")
+    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.53:/home/pancake/ambientled/".split(" ")
+}
+
+tasks.register('uploadRpi2', Exec) {
+    workingDir "${buildDir}/libs"
+    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.57:/home/pancake/ambientled/".split(" ")
 }
 
 tasks.register('restartRpi1', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh pancake@192.168.178.54 sudo systemctl restart ambientled1".split(" ")
+    commandLine "ssh pancake@192.168.178.53 sudo systemctl restart ambientled".split(" ")
 }
 
 tasks.register('restartRpi2', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh pancake@192.168.178.54 sudo systemctl restart ambientled2".split(" ")
+    commandLine "ssh pancake@192.168.178.57 sudo systemctl restart ambientled".split(" ")
 }
 
-uploadRpi.dependsOn shadowJar
-restartRpi1.dependsOn uploadRpi
-restartRpi2.dependsOn restartRpi1
+uploadRpi1.dependsOn shadowJar
+uploadRpi2.dependsOn shadowJar
+restartRpi1.dependsOn uploadRpi1
+restartRpi2.dependsOn uploadRpi2

@@ -37,6 +37,9 @@ public class PiController {
         this.socket = new Socket(this.ip, this.port);
         this.socket.setTcpNoDelay(true);
         this.stream = this.socket.getOutputStream();
+
+        if (!this.socket.isConnected())
+            throw new Exception("Couldn't connect to raspberry pi");
     }
 
     /**
@@ -63,7 +66,6 @@ public class PiController {
         }
 
         this.stream.write(this.buf);
-        this.stream.flush();
     }
 
     /**
@@ -73,7 +75,6 @@ public class PiController {
      */
     public PiController close() throws IOException {
         LOGGER.fine("Closing raspberry pi led strip on port " + this.port);
-        this.clear(); // idk either
         this.clear();
         this.stream.close();
         this.socket.close();

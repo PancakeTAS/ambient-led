@@ -31,6 +31,7 @@ public class AmbientLedRpi {
             socket.setTcpNoDelay(true);
             socket.setSoTimeout(5000);
             this.handle(socket);
+            socket.close();
         }
     }
 
