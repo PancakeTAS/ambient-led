@@ -100,8 +100,8 @@ public class PiUpdater implements Runnable {
     private void reconnect() {
         try {
             LOGGER.fine("Reopening connection to Raspberry Pi");
-            this.pi = new PiController("192.168.178.53", 5163);
-            this.pi2 = new PiController("192.168.178.57", 5164);
+            this.pi = new PiController("192.168.178.54", 5163);
+            this.pi2 = new PiController("192.168.178.64", 5164);
         } catch (Exception e) {
             this.reconnect(); // try again
         }
