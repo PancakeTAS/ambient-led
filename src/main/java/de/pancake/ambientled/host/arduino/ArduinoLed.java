@@ -2,7 +2,6 @@ package de.pancake.ambientled.host.arduino;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -38,17 +37,23 @@ public class ArduinoLed {
      */
     public void clear() throws IOException {
         for (int i = 0; i < 180; i++)
-            this.write(i, Color.BLACK);
+            this.write(i, (byte) 0x00, (byte) 0x00, (byte) 0x00);
     }
 
     /**
      * Write color data to the led strip
      * @param i Index
-     * @param c Color
+     * @param r Red
+     * @param g Green
+     * @param b Blue
      * @throws IOException If the data couldn't be written
      */
-    public void write(int i, Color c) throws IOException {
-        this.stream.write(new byte[] { (byte) (i << 8), (byte) i, (byte) c.getRed(), (byte) c.getGreen(), (byte) c.getBlue() });
+    public void write(int i, byte r, byte g, byte b) throws IOException {
+        this.stream.write((byte) (i << 8));
+        this.stream.write((byte) i);
+        this.stream.write(r);
+        this.stream.write(g);
+        this.stream.write(b);
     }
 
     /**

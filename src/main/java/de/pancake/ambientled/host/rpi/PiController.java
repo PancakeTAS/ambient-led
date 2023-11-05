@@ -1,6 +1,7 @@
 package de.pancake.ambientled.host.rpi;
 
-import java.awt.*;
+import de.pancake.ambientled.host.util.Color;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -60,9 +61,9 @@ public class PiController {
      */
     public void write(Color[] colors, int index, int len) throws IOException {
         for (int i = 0; i < len; i++) {
-            this.buf[i * 3] = (byte) (colors[i + index].getRed() & 0xFF);
-            this.buf[i * 3 + 1] = (byte) (colors[i + index].getGreen() & 0xFF);
-            this.buf[i * 3 + 2] = (byte) (colors[i + index].getBlue() & 0xFF);
+            this.buf[i * 3] = (byte) (colors[i + index].getRed());
+            this.buf[i * 3 + 1] = (byte) (colors[i + index].getGreen());
+            this.buf[i * 3 + 2] = (byte) (colors[i + index].getBlue());
         }
 
         this.stream.write(this.buf);

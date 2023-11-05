@@ -51,36 +51,30 @@ public class ArduinoGrabber implements Runnable {
 
             // calculate average color for each led
             for (int i = 0; i < LEDS_RIGHT; i++) {
-                var c = ColorUtil.average(
-                        right,
+                ColorUtil.average(
+                        right, RIGHT.width(),
                         0, R_HEIGHT_PER_LED * (LEDS_RIGHT - i - 1),
                         300, R_HEIGHT_PER_LED - 1,
-                        5
+                        5, this.led.getArduinoUpdater().getColors()[i]
                 );
-
-                this.led.getArduinoUpdater().getColors()[i] = c;
             }
 
             for (int i = 0; i < LEDS_TOP; i++) {
-                var c = ColorUtil.average(
-                        top,
+                ColorUtil.average(
+                        top, TOP.width(),
                         WIDTH_PER_LED * (LEDS_TOP - i - 1), 0,
                         WIDTH_PER_LED - 1, 180,
-                        5
+                        5, this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT]
                 );
-
-                this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT] = c;
             }
 
             for (int i = 0; i < LEDS_LEFT; i++) {
-                var c = ColorUtil.average(
-                        left,
+                ColorUtil.average(
+                        left, LEFT.width(),
                         0, L_HEIGHT_PER_LED * i,
                         300, L_HEIGHT_PER_LED - 1,
-                        5
+                        5, this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT + LEDS_TOP]
                 );
-
-                this.led.getArduinoUpdater().getColors()[i + LEDS_RIGHT + LEDS_TOP] = c;
             }
 
 

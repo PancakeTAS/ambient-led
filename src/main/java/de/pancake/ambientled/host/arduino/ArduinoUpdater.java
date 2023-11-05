@@ -1,10 +1,10 @@
 package de.pancake.ambientled.host.arduino;
 
 import de.pancake.ambientled.host.AmbientLed;
+import de.pancake.ambientled.host.util.Color;
 import de.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.logging.Level;
 
@@ -37,8 +37,10 @@ public class ArduinoUpdater implements Runnable {
     public ArduinoUpdater(AmbientLed led) {
         this.led = led;
 
-        Arrays.fill(this.colors, Color.BLACK);
-        Arrays.fill(this.final_colors, Color.BLACK);
+        for (int i = 0; i < this.colors.length; i++) {
+            this.colors[i] = new Color();
+            this.final_colors[i] = new Color();
+        }
         this.reopen();
     }
 
@@ -59,7 +61,7 @@ public class ArduinoUpdater implements Runnable {
             // lerp and update colors
             int max = 0;
             for (int i = 0; i < colors.length; i++) {
-                final_colors[i] = ColorUtil.lerp(new Color((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS)), final_colors[i], 0.5f);
+                final_colors[i] = ColorUtil.lerp((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS), final_colors[i], .5);
                 max += final_colors[i].getRed() + final_colors[i].getGreen() + final_colors[i].getBlue();
             }
 
@@ -68,7 +70,7 @@ public class ArduinoUpdater implements Runnable {
             var reduction = Math.min(1, MAX_BRIGHTNESS / Math.max(1.0f, max));
             for (int i = 0; i < final_colors.length; i++) {
                 var c = final_colors[i];
-                this.arduino.write(i, new Color((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction)));
+                this.arduino.write(i, (byte) (c.getRed() * reduction), (byte) (c.getGreen() * reduction), (byte) (c.getBlue() * reduction));
             }
 
             this.arduino.flush();

@@ -1,10 +1,10 @@
 package de.pancake.ambientled.host.rpi;
 
 import de.pancake.ambientled.host.AmbientLed;
+import de.pancake.ambientled.host.util.Color;
 import de.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.logging.Level;
 
@@ -40,9 +40,11 @@ public class PiUpdater implements Runnable {
     public PiUpdater(AmbientLed led) {
         this.led = led;
 
-        Arrays.fill(this.colors, Color.BLACK);
-        Arrays.fill(this.final_colors, Color.BLACK);
-        Arrays.fill(this.final_reduced_colors, Color.BLACK);
+        for (int i = 0; i < this.colors.length; i++) {
+            this.colors[i] = new Color();
+            this.final_colors[i] = new Color();
+            this.final_reduced_colors[i] = new Color();
+        }
         this.reconnect();
     }
 
@@ -66,7 +68,7 @@ public class PiUpdater implements Runnable {
             // lerp and update colors
             int max = 0;
             for (int i = 0; i < final_colors.length; i++) {
-                final_colors[i] = ColorUtil.lerp(new Color((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS)), final_colors[i], .5);
+                final_colors[i] = ColorUtil.lerp((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS), final_colors[i], .5);
                 max += final_colors[i].getRed() + final_colors[i].getGreen() + final_colors[i].getBlue();
             }
             max = (int) (max / (double) final_colors.length);
@@ -75,14 +77,14 @@ public class PiUpdater implements Runnable {
             var reduction = Math.min(1, MAX_BRIGHTNESS_1 / Math.max(1.0f, max));
             for (int i = 0; i < 144; i++) {
                 var c = final_colors[i];
-                this.final_reduced_colors[i] = new Color((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction));
+                this.final_reduced_colors[i].setRGB((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction));
             }
 
             // reduce max brightness for last 144 leds
             reduction = Math.min(1, MAX_BRIGHTNESS_2 / Math.max(1.0f, max));
             for (int i = 144; i < 288; i++) {
                 var c = final_colors[i];
-                this.final_reduced_colors[i] = new Color((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction));
+                this.final_reduced_colors[i].setRGB((int) (c.getRed() * reduction), (int) (c.getGreen() * reduction), (int) (c.getBlue() * reduction));
             }
 
             this.pi.write(this.final_reduced_colors, 0, 144);
