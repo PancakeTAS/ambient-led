@@ -5,7 +5,6 @@ import de.pancake.ambientled.host.util.Color;
 import de.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
-import java.util.Arrays;
 import java.util.logging.Level;
 
 import static de.pancake.ambientled.host.AmbientLed.LOGGER;

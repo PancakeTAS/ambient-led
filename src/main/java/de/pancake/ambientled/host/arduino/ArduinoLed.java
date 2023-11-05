@@ -22,7 +22,7 @@ public class ArduinoLed {
      * @param name Name of the com port
      * @throws Exception If the com port couldn't be opened
      */
-    public ArduinoLed(String name) throws Exception {
+    public ArduinoLed(String name) {
         LOGGER.fine("Initializing arduino led strip");
         this.name = name;
         this.device = this.findComPort();

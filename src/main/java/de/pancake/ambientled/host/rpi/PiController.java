@@ -14,14 +14,12 @@ import static de.pancake.ambientled.host.AmbientLed.LOGGER;
  */
 public class PiController {
 
-    /** IP of the Raspberry Pi */
-    private final String ip;
     /** Port of the Raspberry Pi */
     private final int port;
     /** Socket */
-    private Socket socket;
+    private final Socket socket;
     /** Output stream */
-    private OutputStream stream;
+    private final OutputStream stream;
     /** Buffer */
     private final byte[] buf = new byte[144*3];
 
@@ -33,9 +31,8 @@ public class PiController {
      */
     public PiController(String ip, int port) throws Exception {
         LOGGER.fine("Initializing raspberry pi led strip");
-        this.ip = ip;
         this.port = port;
-        this.socket = new Socket(this.ip, this.port);
+        this.socket = new Socket(ip, this.port);
         this.socket.setTcpNoDelay(true);
         this.stream = this.socket.getOutputStream();
 

@@ -70,15 +70,4 @@ public class DesktopCapture {
         return capture.memory;
     }
 
-    /**
-     * Cleanup allocated resources from capture
-     * @param capture Capture record
-     */
-    public void cleanupCapture(Capture capture) {
-        LOGGER.fine("Cleaning up allocated resources from capture");
-        capture.memory.close();
-        capture.bitmapInfo.clear();
-        GDI.DeleteObject(capture.bitmap);
-    }
-
 }
