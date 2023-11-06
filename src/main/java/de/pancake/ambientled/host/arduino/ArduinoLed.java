@@ -16,6 +16,7 @@ public class ArduinoLed {
     private final String name;
     private final SerialPort device;
     private final OutputStream stream;
+    private final byte[] buf = new byte[5];
 
     /**
      * Initialize a new Led strip and open the com port
@@ -49,11 +50,12 @@ public class ArduinoLed {
      * @throws IOException If the data couldn't be written
      */
     public void write(int i, byte r, byte g, byte b) throws IOException {
-        this.stream.write((byte) (i << 8));
-        this.stream.write((byte) i);
-        this.stream.write(r);
-        this.stream.write(g);
-        this.stream.write(b);
+        buf[0] = (byte) (i << 8);
+        buf[1] = (byte) i;
+        buf[2] = r;
+        buf[3] = g;
+        buf[4] = b;
+        this.stream.write(buf);
     }
 
     /**
