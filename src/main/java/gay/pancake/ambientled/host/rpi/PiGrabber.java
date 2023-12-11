@@ -36,7 +36,7 @@ public class PiGrabber implements Runnable {
      */
     @Override
     public void run() {
-        if (this.led.isPaused())
+        if (this.led.isPaused() || this.led.isFrozen())
             return;
 
         var ms = System.currentTimeMillis();

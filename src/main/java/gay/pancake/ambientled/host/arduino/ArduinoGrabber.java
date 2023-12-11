@@ -37,7 +37,7 @@ public class ArduinoGrabber implements Runnable {
     @Override
     public void run() {
         try {
-            if (this.led.isPaused())
+            if (this.led.isPaused() || this.led.isFrozen())
                 return;
 
             var ms = System.currentTimeMillis();

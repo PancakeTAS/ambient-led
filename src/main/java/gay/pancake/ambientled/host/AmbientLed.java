@@ -42,9 +42,9 @@ public class AmbientLed {
     }
 
     /** Executor service */
-    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(4);
+    private ScheduledExecutorService executor;
     /** Tray menu items */
-    private MenuItem pause = null, resume = null;
+    private MenuItem pause = null, freeze = null;
 
     /** Arduino updater instance */
     @Getter private final ArduinoUpdater arduinoUpdater = new ArduinoUpdater(this);
@@ -55,7 +55,7 @@ public class AmbientLed {
     /** Pi grabber instance */
     @Getter private final PiGrabber piGrabber = new PiGrabber(this);
     /** Is ambient led paused */
-    @Getter @Setter private volatile boolean paused = false;
+    @Getter @Setter private volatile boolean paused = false, frozen = false, efficiency = true;
 
     /**
      * Initialize host application
@@ -72,17 +72,43 @@ public class AmbientLed {
 
         // setup tray icons
         (this.pause = popup.add(this.trayEntry("Pause", i -> {
-            LOGGER.info("Pausing...");
-            this.paused = true;
-            this.pause.setEnabled(false);
-            this.resume.setEnabled(true);
+            if (this.paused) {
+                LOGGER.info("Resuming...");
+                this.paused = false;
+                this.pause.setLabel("Pause");
+            } else {
+                LOGGER.info("Pausing...");
+                this.paused = true;
+                this.pause.setLabel("Resume");
+            }
         }))).setEnabled(true);
-        (this.resume = popup.add(this.trayEntry("Resume", i -> {
-            LOGGER.info("Resuming...");
-            this.paused = false;
-            this.pause.setEnabled(true);
-            this.resume.setEnabled(false);
-        }))).setEnabled(false);
+
+        // setup tray icons
+        (this.freeze = popup.add(this.trayEntry("Freeze", i -> {
+            if (this.frozen) {
+                LOGGER.info("Unfreezing...");
+                this.frozen = false;
+                this.freeze.setLabel("Freeze");
+            } else {
+                LOGGER.info("Freezing...");
+                this.frozen = true;
+                this.freeze.setLabel("Unfreeze");
+            }
+        }))).setEnabled(true);
+
+        // setup efficiency toggle
+        (this.freeze = popup.add(this.trayEntry("Disable Efficiency Mode", i -> {
+            if (this.efficiency) {
+                LOGGER.info("Disabling efficiency mode...");
+                this.efficiency = false;
+                this.freeze.setLabel("Efficiency Mode");
+            } else {
+                LOGGER.info("Enabling efficiency mode...");
+                this.efficiency = true;
+                this.freeze.setLabel("Disable Efficiency Mode");
+            }
+            this.startTimers();
+        }))).setEnabled(true);
 
         popup.add(this.trayEntry("Exit Program", i -> {
             try {
@@ -95,14 +121,20 @@ public class AmbientLed {
             System.exit(0);
         }));
 
-        // start timers
-        LOGGER.info("Launching arduino and raspberry pi services");
-        this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / 60, TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / 30, TimeUnit.MICROSECONDS);
-
         LOGGER.info("Initialization complete");
+        this.startTimers();
+    }
+
+    public void startTimers() {
+        LOGGER.info("Launching arduino and raspberry pi services");
+        if (this.executor != null)
+            this.executor.close();
+
+        this.executor = Executors.newScheduledThreadPool(4);
+        this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / (this.efficiency ? 4 : 60), TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / (this.efficiency ? 2 : 30), TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / (this.efficiency ? 4 : 60), TimeUnit.MICROSECONDS);
+        this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / (this.efficiency ? 2 : 30), TimeUnit.MICROSECONDS);
     }
 
     /**

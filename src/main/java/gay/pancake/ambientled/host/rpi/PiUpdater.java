@@ -62,6 +62,10 @@ public class PiUpdater implements Runnable {
                 return;
             }
 
+            // return on freeze
+            if (this.led.isFrozen())
+                return;
+
             // lerp and update colors
             int max = 0;
             for (int i = 0; i < final_colors.length; i++) {
