@@ -1,4 +1,4 @@
-package de.pancake.ambientled.host.util;
+package gay.pancake.ambientled.host.util;
 
 public class Color {
 

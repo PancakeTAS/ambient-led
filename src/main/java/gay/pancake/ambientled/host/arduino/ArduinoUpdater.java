@@ -1,13 +1,11 @@
-package de.pancake.ambientled.host.arduino;
+package gay.pancake.ambientled.host.arduino;
 
-import de.pancake.ambientled.host.AmbientLed;
-import de.pancake.ambientled.host.util.Color;
-import de.pancake.ambientled.host.util.ColorUtil;
+import gay.pancake.ambientled.host.AmbientLed;
+import gay.pancake.ambientled.host.util.Color;
+import gay.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
 import java.util.logging.Level;
-
-import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 
 /**
  * Arduino updater class
@@ -74,7 +72,7 @@ public class ArduinoUpdater implements Runnable {
 
             this.arduino.flush();
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
+            AmbientLed.LOGGER.log(Level.WARNING, e.getMessage());
             this.reopen();
         }
 
@@ -86,7 +84,7 @@ public class ArduinoUpdater implements Runnable {
     private void reopen() {
         try {
             Thread.sleep(500);
-            LOGGER.fine("Reopening connection to Arduino");
+            AmbientLed.LOGGER.fine("Reopening connection to Arduino");
             this.arduino = new ArduinoLed("Arduino");
         } catch (Exception e) {
             this.reopen(); // try again

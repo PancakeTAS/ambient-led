@@ -1,12 +1,11 @@
-package de.pancake.ambientled.host.util;
+package gay.pancake.ambientled.host.util;
 
 import com.sun.jna.Memory;
 import com.sun.jna.platform.win32.GDI32;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinGDI;
-
-import static de.pancake.ambientled.host.AmbientLed.LOGGER;
+import gay.pancake.ambientled.host.AmbientLed;
 
 /**
  * Utility class for capturing the desktop
@@ -36,7 +35,7 @@ public class DesktopCapture {
      * @return Capture record
      */
     public Capture setupCapture(int x, int y, int width, int height) {
-        LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
+        AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
         // create bitmap info
         var bitmapInfo = new WinGDI.BITMAPINFO();
@@ -61,7 +60,7 @@ public class DesktopCapture {
      * @return Screenshot
      */
     public Memory screenshot(Capture capture) {
-        LOGGER.finest("Taking screenshot of portion of screen: " + capture.x + ", " + capture.y + ", " + capture.width + ", " + capture.height);
+        AmbientLed.LOGGER.finest("Taking screenshot of portion of screen: " + capture.x + ", " + capture.y + ", " + capture.width + ", " + capture.height);
 
         // copy desktop into bitmap
         GDI.SelectObject(DC, capture.bitmap);

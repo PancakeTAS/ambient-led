@@ -1,11 +1,11 @@
-package de.pancake.ambientled.host.rpi;
+package gay.pancake.ambientled.host.rpi;
 
-import de.pancake.ambientled.host.AmbientLed;
-import de.pancake.ambientled.host.util.ColorUtil;
-import de.pancake.ambientled.host.util.DesktopCapture;
+import gay.pancake.ambientled.host.AmbientLed;
+import gay.pancake.ambientled.host.util.ColorUtil;
+import gay.pancake.ambientled.host.util.DesktopCapture;
 import lombok.RequiredArgsConstructor;
 
-import static de.pancake.ambientled.host.AmbientLed.LOGGER;
+import static gay.pancake.ambientled.host.AmbientLed.LOGGER;
 
 /**
  * Raspberry Pi screen grabber class

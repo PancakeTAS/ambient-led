@@ -1,4 +1,4 @@
-package de.pancake.ambientled.rpi;
+package gay.pancake.ambientled.rpi;
 
 import com.diozero.ws281xj.StripType;
 import com.diozero.ws281xj.rpiws281x.WS281x;

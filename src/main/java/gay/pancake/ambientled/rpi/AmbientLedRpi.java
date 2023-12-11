@@ -1,4 +1,4 @@
-package de.pancake.ambientled.rpi;
+package gay.pancake.ambientled.rpi;
 
 import lombok.SneakyThrows;
 

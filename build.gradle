@@ -4,13 +4,13 @@ plugins {
 }
 
 base {
-    group = "de.pancake"
-    archivesName = "ambientled"
+    group = "gay.pancake"
+    archivesName = "ambient-led"
     version = "1.0.0-SNAPSHOT"
 }
 
 application {
-    mainClass = 'de.pancake.ambientled.host.AmbientLed'
+    mainClass = 'gay.pancake.ambientled.host.AmbientLed'
 }
 
 java {

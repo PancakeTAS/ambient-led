@@ -1,4 +1,4 @@
-# Ambient Led
+# ambient-led
 I used to have this led strip on my piano and barely ever used it, so I decided to put it to better use.
 
 ## Hardware

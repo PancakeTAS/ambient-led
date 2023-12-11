@@ -1,13 +1,11 @@
-package de.pancake.ambientled.host.rpi;
+package gay.pancake.ambientled.host.rpi;
 
-import de.pancake.ambientled.host.AmbientLed;
-import de.pancake.ambientled.host.util.Color;
-import de.pancake.ambientled.host.util.ColorUtil;
+import gay.pancake.ambientled.host.AmbientLed;
+import gay.pancake.ambientled.host.util.Color;
+import gay.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
 import java.util.logging.Level;
-
-import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 
 /**
  * Raspberry Pi updater class
@@ -89,7 +87,7 @@ public class PiUpdater implements Runnable {
             this.pi.write(this.final_reduced_colors, 0, 144);
             this.pi2.write(this.final_reduced_colors, 144, 144);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
+            AmbientLed.LOGGER.log(Level.WARNING, e.getMessage());
             this.reconnect();
         }
 
@@ -100,7 +98,7 @@ public class PiUpdater implements Runnable {
      */
     private void reconnect() {
         try {
-            LOGGER.fine("Reopening connection to Raspberry Pi");
+            AmbientLed.LOGGER.fine("Reopening connection to Raspberry Pi");
             this.pi = new PiController("192.168.178.54", 5163);
             this.pi2 = new PiController("192.168.178.64", 5164);
         } catch (Exception e) {

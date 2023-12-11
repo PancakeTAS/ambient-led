@@ -1,11 +1,9 @@
-package de.pancake.ambientled.host.arduino;
+package gay.pancake.ambientled.host.arduino;
 
-import de.pancake.ambientled.host.AmbientLed;
-import de.pancake.ambientled.host.util.ColorUtil;
-import de.pancake.ambientled.host.util.DesktopCapture;
+import gay.pancake.ambientled.host.AmbientLed;
+import gay.pancake.ambientled.host.util.ColorUtil;
+import gay.pancake.ambientled.host.util.DesktopCapture;
 import lombok.RequiredArgsConstructor;
-
-import static de.pancake.ambientled.host.AmbientLed.LOGGER;
 
 /**
  * Arduino screen grabber class
@@ -78,9 +76,9 @@ public class ArduinoGrabber implements Runnable {
             }
 
 
-            LOGGER.finer("Grabbed screen for arduino in " + (System.currentTimeMillis() - ms) + "ms");
+            AmbientLed.LOGGER.finer("Grabbed screen for arduino in " + (System.currentTimeMillis() - ms) + "ms");
         } catch (Exception e) {
-            LOGGER.severe("Grabbing screen for arduino failed!");
+            AmbientLed.LOGGER.severe("Grabbing screen for arduino failed!");
             e.printStackTrace(System.err);
         }
     }

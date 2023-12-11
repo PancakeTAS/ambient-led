@@ -1,9 +1,9 @@
-package de.pancake.ambientled.host;
+package gay.pancake.ambientled.host;
 
-import de.pancake.ambientled.host.arduino.ArduinoGrabber;
-import de.pancake.ambientled.host.arduino.ArduinoUpdater;
-import de.pancake.ambientled.host.rpi.PiGrabber;
-import de.pancake.ambientled.host.rpi.PiUpdater;
+import gay.pancake.ambientled.host.arduino.ArduinoGrabber;
+import gay.pancake.ambientled.host.arduino.ArduinoUpdater;
+import gay.pancake.ambientled.host.rpi.PiGrabber;
+import gay.pancake.ambientled.host.rpi.PiUpdater;
 import lombok.Getter;
 import lombok.Setter;
 
