@@ -44,7 +44,7 @@ public class AmbientLed {
     /** Executor service */
     private ScheduledExecutorService executor;
     /** Tray menu items */
-    private MenuItem pause = null, freeze = null;
+    private MenuItem pause = null, freeze = null, efficiencymode = null;
 
     /** Arduino updater instance */
     @Getter private final ArduinoUpdater arduinoUpdater = new ArduinoUpdater(this);
@@ -97,15 +97,15 @@ public class AmbientLed {
         }))).setEnabled(true);
 
         // setup efficiency toggle
-        (this.freeze = popup.add(this.trayEntry("Disable Efficiency Mode", i -> {
+        (this.efficiencymode = popup.add(this.trayEntry("Disable Efficiency Mode", i -> {
             if (this.efficiency) {
                 LOGGER.info("Disabling efficiency mode...");
                 this.efficiency = false;
-                this.freeze.setLabel("Efficiency Mode");
+                this.efficiencymode.setLabel("Efficiency Mode");
             } else {
                 LOGGER.info("Enabling efficiency mode...");
                 this.efficiency = true;
-                this.freeze.setLabel("Disable Efficiency Mode");
+                this.efficiencymode.setLabel("Disable Efficiency Mode");
             }
             this.startTimers();
         }))).setEnabled(true);
