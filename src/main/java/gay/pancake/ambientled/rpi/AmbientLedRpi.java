@@ -37,7 +37,8 @@ public class AmbientLedRpi {
 
     /**
      * Handle incoming client
-     * @param socket Client socket
+     *
+     * @param s Client socket
      */
     @SneakyThrows
     private void handle(Socket s) {

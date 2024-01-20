@@ -2,10 +2,10 @@ package gay.pancake.ambientled.host.capture;
 
 import com.sun.jna.Memory;
 import gay.pancake.ambientled.host.AmbientLed;
-import lombok.SneakyThrows;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -15,8 +15,8 @@ import java.nio.ByteBuffer;
  */
 class LinuxDesktopCapture implements DesktopCapture {
 
-    @SneakyThrows @Override
-    public Capture setupCapture(int screen, int x, int y, int width, int height) {
+    @Override
+    public Capture setupCapture(int screen, int x, int y, int width, int height) throws IOException {
         AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
         // create frame grabber
@@ -36,8 +36,8 @@ class LinuxDesktopCapture implements DesktopCapture {
         );
     }
 
-    @SneakyThrows @Override
-    public void screenshot(Capture capture) {
+    @Override
+    public void screenshot(Capture capture) throws IOException {
         AmbientLed.LOGGER.finest("Taking screenshot of portion of screen: " + capture.x() + ", " + capture.y() + ", " + capture.width() + ", " + capture.height());
 
         // take screenshot
@@ -52,8 +52,8 @@ class LinuxDesktopCapture implements DesktopCapture {
         capture.memory().write(0, backingBuffer, 0, backingBuffer.length);
     }
 
-    @SneakyThrows @Override
-    public void free(Capture capture) {
+    @Override
+    public void free(Capture capture) throws IOException {
         capture.memory().close();
         ((FFmpegFrameGrabber) capture.attachment()[0]).close();
     }

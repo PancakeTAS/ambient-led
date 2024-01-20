@@ -34,9 +34,8 @@ class ArduinoLedUpdater implements LedUpdater {
      * @param name Name of the com port
      * @param count Number of leds
      * @throws IOException If the com port couldn't be opened
-     * @throws InterruptedException If the reset sequence was interrupted
      */
-    public ArduinoLedUpdater(String name, int count) throws IOException, InterruptedException {
+    public ArduinoLedUpdater(String name, int count) throws IOException {
         AmbientLed.LOGGER.fine("Initializing arduino led strip");
         this.name = name;
         this.device = this.findComPort();
@@ -52,7 +51,11 @@ class ArduinoLedUpdater implements LedUpdater {
             this.stream.write("RESET!!!".getBytes(StandardCharsets.US_ASCII));
             this.stream.flush();
 
-            Thread.sleep(50);
+            try {
+                Thread.sleep(100);
+            } catch (Exception ignored) {
+
+            }
         }
     }
 
@@ -96,11 +99,9 @@ class ArduinoLedUpdater implements LedUpdater {
      * @return Serial Port
      */
     private SerialPort findComPort() {
-        for (var porti : SerialPort.getCommPorts()) {
-            System.out.println(porti.getDescriptivePortName());
+        for (var porti : SerialPort.getCommPorts())
             if (porti.getDescriptivePortName().toLowerCase().contains(this.name.toLowerCase()))
                 return porti;
-        }
 
         throw new RuntimeException("Couldn't find com port: " + this.name);
     }

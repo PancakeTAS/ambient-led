@@ -2,7 +2,6 @@ package gay.pancake.ambientled.host;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -66,14 +65,17 @@ public class AmbientLed {
      * @param name Instance name
      * @param led Instance
      */
-    @SneakyThrows
     private void onAdd(String name, LedInstance led) {
-        LOGGER.info("Adding instance " + name);
-        var instance = this.instances.get(name);
-        if (instance != null)
-            instance.close();
-        this.instances.put(name, led);
-        led.open();
+        try {
+            LOGGER.info("Adding instance " + name);
+            var instance = this.instances.get(name);
+            if (instance != null)
+                instance.close();
+            this.instances.put(name, led);
+            led.open();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Unable to open instance " + name, e);
+        }
     }
 
     /**
@@ -81,12 +83,15 @@ public class AmbientLed {
      *
      * @param name Instance name
      */
-    @SneakyThrows
     private void onRemove(String name) {
-        LOGGER.info("Removing instance " + name);
-        var instance = this.instances.remove(name);
-        if (instance != null)
-            instance.close();
+        try {
+            LOGGER.info("Removing instance " + name);
+            var instance = this.instances.remove(name);
+            if (instance != null)
+                instance.close();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unable to remove instance " + name, e);
+        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException { new AmbientLed(); }

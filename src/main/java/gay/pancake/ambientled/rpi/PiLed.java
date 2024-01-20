@@ -3,18 +3,20 @@ package gay.pancake.ambientled.rpi;
 import com.diozero.ws281xj.StripType;
 import com.diozero.ws281xj.rpiws281x.WS281x;
 
-import java.io.IOException;
+import java.io.Closeable;
 
 /**
  * Led controller for raspberry pi based led strips
+ *
  * @author Pancake
  */
-public class PiLed {
+public class PiLed implements Closeable {
 
     private final WS281x led;
 
     /**
      * Initialize the led strip
+     *
      * @param gpio GPIO pin
      */
     public PiLed(int gpio) {
@@ -30,30 +32,29 @@ public class PiLed {
 
     /**
      * Write color data to the led strip
+     *
      * @param i Index
-     * @param c Color
-     * @throws IOException If the data couldn't be written
+     * @param r Red
+     * @param g Green
+     * @param b Blue
      */
-    public void write(int i, byte r, byte g, byte b) throws IOException {
+    public void write(int i, byte r, byte g, byte b) {
         this.led.setPixelColour(i, Byte.toUnsignedInt(r) << 16 | Byte.toUnsignedInt(g) << 8 | Byte.toUnsignedInt(b));
     }
 
     /**
      * Flush the stream to the led strip
-     * @throws IOException If the stream couldn't be flushed
      */
-    public void flush() throws IOException {
+    public void flush() {
         this.led.render();
     }
 
     /**
      * Close the connection to the led strip
-     * @throws IOException If the connection couldn't be closed
-     * @return null
      */
-    public PiLed close() throws IOException {
+    @Override
+    public void close() {
         this.clear();
         this.led.close();
-        return null;
     }
 }

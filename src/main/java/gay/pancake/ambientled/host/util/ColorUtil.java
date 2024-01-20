@@ -63,10 +63,9 @@ public class ColorUtil {
      * @param b Blue
      * @param c Color b
      * @param t Interpolation value
-     * @return Interpolated color
      */
-    public static Color lerp(int r, int g, int b, Color c, double t) {
-        return c.setRGB(r + (int) ((c.getRed() - r) * t),
+    public static void lerp(int r, int g, int b, Color c, double t) {
+        c.setRGB(r + (int) ((c.getRed() - r) * t),
                         g + (int) ((c.getGreen() - g) * t),
                         b + (int) ((c.getBlue() - b) * t));
     }

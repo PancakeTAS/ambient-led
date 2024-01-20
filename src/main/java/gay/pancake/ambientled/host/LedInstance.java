@@ -4,21 +4,22 @@ import gay.pancake.ambientled.host.capture.DesktopCapture;
 import gay.pancake.ambientled.host.updater.LedUpdater;
 import gay.pancake.ambientled.host.util.ColorUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
+import static gay.pancake.ambientled.host.AmbientLed.LOGGER;
 import static gay.pancake.ambientled.host.capture.DesktopCapture.DC;
 
 @RequiredArgsConstructor
-public class LedInstance implements Closeable {
+public class LedInstance {
 
     /** Configuration for led strips */
     private final ConfigurationManager.Configuration[] strips;
+
     /** Executor for led strips */
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(4);
 
@@ -31,7 +32,12 @@ public class LedInstance implements Closeable {
     /** Final colors for led segments */
     private ColorUtil.Color[][] final_colors;
 
-    public void open() throws Exception {
+    /**
+     * Open the instance
+     *
+     * @throws IOException If an I/O error occurs
+     */
+    public void open() throws IOException {
         this.updaters = new LedUpdater[this.strips.length];
         this.captures = new DesktopCapture.Capture[this.strips.length][];
         this.colors = new ColorUtil.Color[this.strips.length][];
@@ -44,7 +50,7 @@ public class LedInstance implements Closeable {
             else if (strip.type().equals("arduino"))
                 this.updaters[i] = LedUpdater.createArduinoLed(strip.com(), strip.leds());
             else
-                throw new Exception("Unknown led type: " + strip.type());
+                throw new IOException("Unknown led type: " + strip.type());
 
             this.colors[i] = new ColorUtil.Color[strip.leds()];
             this.final_colors[i] = new ColorUtil.Color[strip.leds()];
@@ -80,8 +86,12 @@ public class LedInstance implements Closeable {
         var capture = this.captures[stripIndex][segmentIndex];
         var segment = strip.segments().get(segmentIndex);
 
-        DC.screenshot(capture);
-        DC.averages(capture, segment.orientation(), segment.invert(), colors, segment.offset(), segment.length()); // TODO: step
+        try {
+            DC.screenshot(capture);
+            DC.averages(capture, segment.orientation(), segment.invert(), colors, segment.offset(), segment.length(), segment.steps());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to render segment " + segmentIndex + " of strip " + stripIndex, e);
+        }
     }
 
 
@@ -90,7 +100,6 @@ public class LedInstance implements Closeable {
      *
      * @param stripIndex Strip index
      */
-    @SneakyThrows
     public void update(int stripIndex) {
         var colors = this.colors[stripIndex];
         var final_colors = this.final_colors[stripIndex];
@@ -107,11 +116,20 @@ public class LedInstance implements Closeable {
         // reduce max brightness
         max = (int) (max / (double) final_colors.length);
         var reduction = Math.min(1, strip.maxBrightness() / Math.max(1.0f, max));
-        updater.reduction(reduction * strip.reductionR(), reduction * strip.reductionG(), reduction * strip.reductionB());
-        updater.write(final_colors, 0, final_colors.length);
+
+        try {
+            updater.reduction(reduction * strip.reductionR(), reduction * strip.reductionG(), reduction * strip.reductionB());
+            updater.write(final_colors, 0, final_colors.length);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to update strip " + stripIndex, e);
+        }
     }
 
-    @Override
+    /**
+     * Close the instance
+     *
+     * @throws IOException If an I/O error occurs
+     */
     public void close() throws IOException {
         this.executor.close();
 

@@ -14,7 +14,7 @@
                 "y": 0,
                 "width": 1920,
                 "height": 90,
-                "steps": 5,
+                "steps": 4,
                 "fps": 30,
                 "orientation": true,
                 "invert": false
@@ -40,7 +40,7 @@
                 "y": 990,
                 "width": 1920,
                 "height": 90,
-                "steps": 5,
+                "steps": 4,
                 "fps": 30,
                 "orientation": true,
                 "invert": false

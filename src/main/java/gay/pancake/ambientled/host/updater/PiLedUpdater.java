@@ -32,8 +32,9 @@ class PiLedUpdater implements LedUpdater {
      * @param ip IP of the Raspberry Pi
      * @param port Port of the Raspberry Pi
      * @param count Number of leds
+     * @throws IOException If the connection couldn't be established
      */
-    public PiLedUpdater(String ip, int port, int count) throws Exception {
+    public PiLedUpdater(String ip, int port, int count) throws IOException {
         AmbientLed.LOGGER.fine("Initializing raspberry pi led strip");
         this.port = port;
         this.socket = new Socket(ip, this.port);
@@ -42,7 +43,7 @@ class PiLedUpdater implements LedUpdater {
         this.buffer = new byte[count * 3];
 
         if (!this.socket.isConnected())
-            throw new Exception("Couldn't connect to raspberry pi");
+            throw new IOException("Couldn't connect to raspberry pi");
     }
 
     @Override

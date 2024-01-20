@@ -22,9 +22,9 @@ public interface LedUpdater extends Closeable {
     /**
      * Clear the led strip
      *
-     * @throws Exception If the data couldn't be written
+     * @throws IOException If the data couldn't be written
      */
-    void clear() throws Exception;
+    void clear() throws IOException;
 
     /**
      * Write color data to the led strip
@@ -32,9 +32,9 @@ public interface LedUpdater extends Closeable {
      * @param colors Colors array
      * @param offset Offset
      * @param length Length
-     * @throws Exception If the data couldn't be written
+     * @throws IOException If the data couldn't be written
      */
-    void write(ColorUtil.Color[] colors, int offset, int length) throws Exception;
+    void write(ColorUtil.Color[] colors, int offset, int length) throws IOException;
 
     /**
      * Create a new ArduinoLed instance
@@ -42,10 +42,9 @@ public interface LedUpdater extends Closeable {
      * @param com Com port
      * @param count Led count
      * @throws IOException If the com port couldn't be opened
-     * @throws InterruptedException If the reset sequence was interrupted
      * @return ArduinoLed instance
      */
-    static LedUpdater createArduinoLed(String com, int count) throws IOException, InterruptedException {
+    static LedUpdater createArduinoLed(String com, int count) throws IOException {
         return new ArduinoLedUpdater(com, count);
     }
 
@@ -56,9 +55,9 @@ public interface LedUpdater extends Closeable {
      * @param port Port
      * @param count Led count
      * @return ArduinoLed instance
-     * @throws Exception If the connection couldn't be established
+     * @throws IOException If the connection couldn't be established
      */
-    static LedUpdater createPiLed(String ip, int port, int count) throws Exception {
+    static LedUpdater createPiLed(String ip, int port, int count) throws IOException {
         return new PiLedUpdater(ip, port, count);
     }
 
