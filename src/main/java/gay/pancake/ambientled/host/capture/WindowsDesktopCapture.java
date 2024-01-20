@@ -24,6 +24,7 @@ class WindowsDesktopCapture implements DesktopCapture {
     /** Device context */
     private final WinDef.HDC DC = GDI.CreateCompatibleDC(DESKTOP);
 
+    @Override
     public Capture setupCapture(int screen, int x, int y, int width, int height) {
         AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
@@ -44,6 +45,7 @@ class WindowsDesktopCapture implements DesktopCapture {
         );
     }
 
+    @Override
     public void screenshot(Capture capture) {
         AmbientLed.LOGGER.finest("Taking screenshot of portion of screen: " + capture.x() + ", " + capture.y() + ", " + capture.width() + ", " + capture.height());
 
@@ -52,6 +54,13 @@ class WindowsDesktopCapture implements DesktopCapture {
         GDI.SelectObject(DC, bitmap);
         GDI.BitBlt(DC, 0, 0, capture.width(), capture.height(), DESKTOP, capture.x(), capture.y(), GDI32.SRCCOPY);
         GDI.GetDIBits(DESKTOP, bitmap, 0, capture.height(), capture.memory(), (WinGDI.BITMAPINFO) capture.attachment()[1], WinGDI.DIB_RGB_COLORS);
+    }
+
+    @Override
+    public void free(Capture capture) {
+        capture.memory().close();
+        ((WinGDI.BITMAPINFO) capture.attachment()[1]).clear();
+        GDI.DeleteObject((WinDef.HBITMAP) capture.attachment()[0]);
     }
 
 }

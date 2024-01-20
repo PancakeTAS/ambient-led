@@ -52,4 +52,9 @@ class LinuxDesktopCapture implements DesktopCapture {
         capture.memory().write(0, backingBuffer, 0, backingBuffer.length);
     }
 
+    @SneakyThrows @Override
+    public void free(Capture capture) {
+        capture.memory().close();
+        ((FFmpegFrameGrabber) capture.attachment()[0]).close();
+    }
 }

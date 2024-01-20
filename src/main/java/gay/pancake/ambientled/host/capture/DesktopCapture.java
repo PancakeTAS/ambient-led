@@ -45,6 +45,13 @@ public interface DesktopCapture {
     void screenshot(Capture capture);
 
     /**
+     * Free memory of capture record
+     *
+     * @param capture Capture record
+     */
+    void free(Capture capture);
+
+    /**
      * Calculate average color for each led
      *
      * @param memory Memory
