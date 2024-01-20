@@ -7,13 +7,10 @@ import gay.pancake.ambientled.host.rpi.PiUpdater;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.logging.*;
 
 /**
@@ -43,8 +40,6 @@ public class AmbientLed {
 
     /** Executor service */
     private ScheduledExecutorService executor;
-    /** Tray menu items */
-    private MenuItem pause = null, freeze = null, efficiencymode = null;
 
     /** Arduino updater instance */
     @Getter private final ArduinoUpdater arduinoUpdater = new ArduinoUpdater(this);
@@ -59,67 +54,13 @@ public class AmbientLed {
 
     /**
      * Initialize host application
-     * @throws Exception If something goes wrong
      */
-    private AmbientLed() throws Exception {
-        // create tray icon
-        LOGGER.info("Initializing tray icon");
-        var icon = new TrayIcon(new ImageIcon(AmbientLed.class.getResource("/tray.png")).getImage());
-        var tray = SystemTray.getSystemTray();
-        var popup = new PopupMenu();
-        icon.setPopupMenu(popup);
-        tray.add(icon);
-
-        // setup tray icons
-        (this.pause = popup.add(this.trayEntry("Pause", i -> {
-            if (this.paused) {
-                LOGGER.info("Resuming...");
-                this.paused = false;
-                this.pause.setLabel("Pause");
-            } else {
-                LOGGER.info("Pausing...");
-                this.paused = true;
-                this.pause.setLabel("Resume");
-            }
-        }))).setEnabled(true);
-
-        // setup tray icons
-        (this.freeze = popup.add(this.trayEntry("Freeze", i -> {
-            if (this.frozen) {
-                LOGGER.info("Unfreezing...");
-                this.frozen = false;
-                this.freeze.setLabel("Freeze");
-            } else {
-                LOGGER.info("Freezing...");
-                this.frozen = true;
-                this.freeze.setLabel("Unfreeze");
-            }
-        }))).setEnabled(true);
-
-        // setup efficiency toggle
-        (this.efficiencymode = popup.add(this.trayEntry("Disable Efficiency Mode", i -> {
-            if (this.efficiency) {
-                LOGGER.info("Disabling efficiency mode...");
-                this.efficiency = false;
-                this.efficiencymode.setLabel("Efficiency Mode");
-            } else {
-                LOGGER.info("Enabling efficiency mode...");
-                this.efficiency = true;
-                this.efficiencymode.setLabel("Disable Efficiency Mode");
-            }
-            this.startTimers();
-        }))).setEnabled(true);
-
-        popup.add(this.trayEntry("Exit Program", i -> {
-            try {
-                LOGGER.info("Exiting...");
-                this.setPaused(true);
-                Thread.sleep(250);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            System.exit(0);
-        }));
+    private AmbientLed() {
+        try {
+            new ControlTray(this);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Unable to initialize system tray", e);
+        }
 
         LOGGER.info("Initialization complete");
         this.startTimers();
@@ -131,24 +72,13 @@ public class AmbientLed {
             this.executor.close();
 
         this.executor = Executors.newScheduledThreadPool(4);
+        this.efficiency = false;
         this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / (this.efficiency ? 4 : 60), TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / (this.efficiency ? 2 : 30), TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / (this.efficiency ? 4 : 60), TimeUnit.MICROSECONDS);
         this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / (this.efficiency ? 2 : 30), TimeUnit.MICROSECONDS);
     }
 
-    /**
-     * Create tray entry
-     * @param title Title of entry
-     * @param run Action to run
-     * @return Created entry
-     */
-    private MenuItem trayEntry(String title, Consumer<MenuItem> run) {
-        var item = new MenuItem(title);
-        item.addActionListener(e -> run.accept(item));
-        return item;
-    }
-
-    public static void main(String[] args) throws Exception { new AmbientLed(); }
+    public static void main(String[] args) { new AmbientLed(); }
 
 }
