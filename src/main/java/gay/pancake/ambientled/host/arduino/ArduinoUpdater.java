@@ -1,7 +1,7 @@
 package gay.pancake.ambientled.host.arduino;
 
 import gay.pancake.ambientled.host.AmbientLed;
-import gay.pancake.ambientled.host.util.Color;
+import gay.pancake.ambientled.host.updater.LedUpdater;
 import gay.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
@@ -15,17 +15,15 @@ public class ArduinoUpdater implements Runnable {
 
     /** Max brightness of all leds divided by number of them */
     public static int MAX_BRIGHTNESS = 145;
-    /** Brightness modifiers of red, green and blue leds */
-    public static float R_BRIGHTNESS = 1.0f, G_BRIGHTNESS = 0.7f, B_BRIGHTNESS = 1.0f;
 
     /** Ambient led instance */
     private final AmbientLed led;
     /** Arduino led instance */
-    private ArduinoLed arduino;
+    private LedUpdater arduino;
     /** Colors */
-    @Getter private final Color[] colors = new Color[180];
+    @Getter private final ColorUtil.Color[] colors = new ColorUtil.Color[180];
     /** Interpolated colors */
-    private final Color[] final_colors = new Color[180];
+    private final ColorUtil.Color[] final_colors = new ColorUtil.Color[180];
 
     /**
      * Initialize arduino updater
@@ -35,8 +33,8 @@ public class ArduinoUpdater implements Runnable {
         this.led = led;
 
         for (int i = 0; i < this.colors.length; i++) {
-            this.colors[i] = new Color();
-            this.final_colors[i] = new Color();
+            this.colors[i] = new ColorUtil.Color();
+            this.final_colors[i] = new ColorUtil.Color();
         }
         this.reopen();
     }
@@ -49,8 +47,10 @@ public class ArduinoUpdater implements Runnable {
         try {
             // disconnect arduino on pause
             if (this.led.isPaused()) {
-                if (this.arduino != null)
-                    this.arduino = this.arduino.close();
+                if (this.arduino != null) {
+                    this.arduino.close();
+                    this.arduino = null;
+                }
 
                 return;
             }
@@ -62,19 +62,15 @@ public class ArduinoUpdater implements Runnable {
             // lerp and update colors
             int max = 0;
             for (int i = 0; i < colors.length; i++) {
-                final_colors[i] = ColorUtil.lerp((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS), final_colors[i], .5);
+                final_colors[i] = ColorUtil.lerp(colors[i].getRed(), colors[i].getGreen(), colors[i].getBlue(), final_colors[i], .5);
                 max += final_colors[i].getRed() + final_colors[i].getGreen() + final_colors[i].getBlue();
             }
 
             // reduce max brightness
             max = (int) (max / (double) final_colors.length);
             var reduction = Math.min(1, MAX_BRIGHTNESS / Math.max(1.0f, max));
-            for (int i = 0; i < final_colors.length; i++) {
-                var c = final_colors[i];
-                this.arduino.write(i, (byte) (c.getRed() * reduction), (byte) (c.getGreen() * reduction), (byte) (c.getBlue() * reduction));
-            }
-
-            this.arduino.flush();
+            this.arduino.reduction(reduction, reduction * 0.7f, reduction);
+            this.arduino.write(final_colors, 0, final_colors.length);
         } catch (Exception e) {
             AmbientLed.LOGGER.log(Level.WARNING, e.getMessage());
             this.reopen();
@@ -89,7 +85,7 @@ public class ArduinoUpdater implements Runnable {
         try {
             Thread.sleep(500);
             AmbientLed.LOGGER.fine("Reopening connection to Arduino");
-            this.arduino = new ArduinoLed("Arduino");
+            this.arduino = LedUpdater.createArduinoLed("Arduino", 180);
         } catch (Exception e) {
             this.reopen(); // try again
         }

@@ -1,7 +1,7 @@
 package gay.pancake.ambientled.host.rpi;
 
 import gay.pancake.ambientled.host.AmbientLed;
-import gay.pancake.ambientled.host.util.Color;
+import gay.pancake.ambientled.host.updater.LedUpdater;
 import gay.pancake.ambientled.host.util.ColorUtil;
 import lombok.Getter;
 
@@ -15,19 +15,17 @@ public class PiUpdater implements Runnable {
 
     /** Max brightness of all leds divided by number of them */
     public static int MAX_BRIGHTNESS_1 = 400, MAX_BRIGHTNESS_2 = 300;
-    /** Brightness modifiers of red, green and blue leds */
-    public static float R_BRIGHTNESS = 1.0f, G_BRIGHTNESS = 1.0f, B_BRIGHTNESS = 1.0f;
 
     /** Ambient led instance */
     private final AmbientLed led;
     /** Pi controller instance */
-    private PiController pi, pi2;
+    private LedUpdater pi, pi2;
     /** Colors */
-    @Getter private final Color[] colors = new Color[288];
+    @Getter private final ColorUtil.Color[] colors = new ColorUtil.Color[288];
     /** Interpolated colors */
-    private final Color[] final_colors = new Color[288];
+    private final ColorUtil.Color[] final_colors = new ColorUtil.Color[288];
     /** Interpolated reduced colors */
-    private final Color[] final_reduced_colors = new Color[288];
+    private final ColorUtil.Color[] final_reduced_colors = new ColorUtil.Color[288];
 
 
     /**
@@ -38,9 +36,9 @@ public class PiUpdater implements Runnable {
         this.led = led;
 
         for (int i = 0; i < this.colors.length; i++) {
-            this.colors[i] = new Color();
-            this.final_colors[i] = new Color();
-            this.final_reduced_colors[i] = new Color();
+            this.colors[i] = new ColorUtil.Color();
+            this.final_colors[i] = new ColorUtil.Color();
+            this.final_reduced_colors[i] = new ColorUtil.Color();
         }
         this.reconnect();
     }
@@ -53,11 +51,15 @@ public class PiUpdater implements Runnable {
         try {
             // disconnect pi on pause
             if (this.led.isPaused()) {
-                if (this.pi != null)
-                    this.pi = this.pi.close();
+                if (this.pi != null) {
+                    this.pi.close();
+                    this.pi = null;
+                }
 
-                if (this.pi2 != null)
-                    this.pi2 = this.pi2.close();
+                if (this.pi2 != null) {
+                    this.pi2.close();
+                    this.pi2 = null;
+                }
 
                 return;
             }
@@ -69,7 +71,7 @@ public class PiUpdater implements Runnable {
             // lerp and update colors
             int max = 0;
             for (int i = 0; i < final_colors.length; i++) {
-                final_colors[i] = ColorUtil.lerp((int) (colors[i].getRed() * R_BRIGHTNESS), (int) (colors[i].getGreen() * G_BRIGHTNESS), (int) (colors[i].getBlue() * B_BRIGHTNESS), final_colors[i], .5);
+                final_colors[i] = ColorUtil.lerp(colors[i].getRed(), colors[i].getGreen(), colors[i].getBlue(), final_colors[i], .5);
                 max += final_colors[i].getRed() + final_colors[i].getGreen() + final_colors[i].getBlue();
             }
             max = (int) (max / (double) final_colors.length);
@@ -103,8 +105,8 @@ public class PiUpdater implements Runnable {
     private void reconnect() {
         try {
             AmbientLed.LOGGER.fine("Reopening connection to Raspberry Pi");
-            this.pi = new PiController("192.168.178.54", 5163);
-            this.pi2 = new PiController("192.168.178.64", 5164);
+            this.pi = LedUpdater.createPiLed("192.168.178.54", 5163, 144);
+            this.pi2 = LedUpdater.createPiLed("192.168.178.64", 5164, 144);
         } catch (Exception e) {
             this.reconnect(); // try again
         }
