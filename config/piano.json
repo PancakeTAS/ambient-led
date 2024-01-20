@@ -1,0 +1,53 @@
+[
+    {
+        "type": "arduino",
+        "com": "Arduino Leonardo",
+        "leds": 180,
+        "ups": 60,
+        "segments": [
+            {
+                "offset": 0,
+                "length": 47,
+                "display": 1,
+                "x": 3540,
+                "y": 0,
+                "width": 300,
+                "height": 2160,
+                "steps": 5,
+                "fps": 30,
+                "orientation": false,
+                "invert": true
+            },
+            {
+                "offset": 47,
+                "length": 76,
+                "display": 1,
+                "x": 0,
+                "y": 0,
+                "width": 3840,
+                "height": 180,
+                "steps": 5,
+                "fps": 30,
+                "orientation": true,
+                "invert": true
+            },
+            {
+                "offset": 123,
+                "length": 57,
+                "display": 1,
+                "x": 0,
+                "y": 0,
+                "width": 300,
+                "height": 2160,
+                "steps": 5,
+                "fps": 30,
+                "orientation": false,
+                "invert": false
+            }
+        ],
+        "maxBrightness": 145,
+        "reductionR": 1.0,
+        "reductionG": 0.7,
+        "reductionB": 1.0
+    }
+]
