@@ -61,7 +61,7 @@ public class ControlTray {
                 led.setEfficiency(true);
                 this.efficiencymode.setLabel("Disable Efficiency Mode");
             }
-            led.startTimers();
+//            led.startTimers();
         }))).setEnabled(true);
 
         popup.add(this.trayEntry("Exit Program", i -> {

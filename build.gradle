@@ -33,6 +33,9 @@ dependencies {
     implementation 'org.bytedeco:javacv:1.5.9'
     implementation 'org.bytedeco:javacv-platform:1.5.9'
 
+    // add gson for json
+    implementation 'com.google.code.gson:gson:2.10.1'
+
     // add diozero for raspberry pi led
     implementation 'com.diozero:diozero-ws281x-java:1.3.5'
 

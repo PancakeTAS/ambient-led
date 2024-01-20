@@ -1,16 +1,13 @@
 package gay.pancake.ambientled.host;
 
-import gay.pancake.ambientled.host.arduino.ArduinoGrabber;
-import gay.pancake.ambientled.host.arduino.ArduinoUpdater;
-import gay.pancake.ambientled.host.rpi.PiGrabber;
-import gay.pancake.ambientled.host.rpi.PiUpdater;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.*;
 
 /**
@@ -38,47 +35,60 @@ public class AmbientLed {
         LOGGER.addHandler(handler);
     }
 
-    /** Executor service */
-    private ScheduledExecutorService executor;
-
-    /** Arduino updater instance */
-    @Getter private final ArduinoUpdater arduinoUpdater = new ArduinoUpdater(this);
-    /** Arduino grabber instance */
-    @Getter private final ArduinoGrabber arduinoGrabber = new ArduinoGrabber(this);
-    /** Pi updater instance */
-    @Getter private final PiUpdater piUpdater = new PiUpdater(this);
-    /** Pi grabber instance */
-    @Getter private final PiGrabber piGrabber = new PiGrabber(this);
     /** Is ambient led paused */
     @Getter @Setter private volatile boolean paused = false, frozen = false, efficiency = true;
 
+    private ControlTray tray;
+    private final ConfigurationManager config;
+    private final Map<String, LedInstance> instances = new HashMap<>();
+
     /**
      * Initialize host application
+     *
+     * @throws IOException If the system tray is not supported
+     * @throws InterruptedException If the main thread is interrupted
      */
-    private AmbientLed() {
+    private AmbientLed() throws IOException, InterruptedException {
         try {
-            new ControlTray(this);
+            this.tray = new ControlTray(this);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Unable to initialize system tray", e);
         }
 
+        this.config = new ConfigurationManager(this::onAdd, this::onRemove);
         LOGGER.info("Initialization complete");
-        this.startTimers();
+        Thread.sleep(Long.MAX_VALUE);
     }
 
-    public void startTimers() {
-        LOGGER.info("Launching arduino and raspberry pi services");
-        if (this.executor != null)
-            this.executor.close();
-
-        this.executor = Executors.newScheduledThreadPool(4);
-        this.efficiency = false;
-        this.executor.scheduleAtFixedRate(this.arduinoUpdater, 0, 1000000 / (this.efficiency ? 4 : 60), TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.arduinoGrabber, 0, 1000000 / (this.efficiency ? 2 : 30), TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.piUpdater, 0, 1000000 / (this.efficiency ? 4 : 60), TimeUnit.MICROSECONDS);
-        this.executor.scheduleAtFixedRate(this.piGrabber, 0, 1000000 / (this.efficiency ? 2 : 30), TimeUnit.MICROSECONDS);
+    /**
+     * Add an instance
+     *
+     * @param name Instance name
+     * @param led Instance
+     */
+    @SneakyThrows
+    private void onAdd(String name, LedInstance led) {
+        LOGGER.info("Adding instance " + name);
+        var instance = this.instances.get(name);
+        if (instance != null)
+            instance.close();
+        this.instances.put(name, led);
+        led.open();
     }
 
-    public static void main(String[] args) { new AmbientLed(); }
+    /**
+     * Remove an instance
+     *
+     * @param name Instance name
+     */
+    @SneakyThrows
+    private void onRemove(String name) {
+        LOGGER.info("Removing instance " + name);
+        var instance = this.instances.remove(name);
+        if (instance != null)
+            instance.close();
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException { new AmbientLed(); }
 
 }
