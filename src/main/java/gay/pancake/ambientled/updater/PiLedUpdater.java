@@ -1,11 +1,12 @@
-package gay.pancake.ambientled.host.updater;
+package gay.pancake.ambientled.updater;
 
-import gay.pancake.ambientled.host.AmbientLed;
-import gay.pancake.ambientled.host.util.ColorUtil;
+import gay.pancake.ambientled.AmbientLed;
+import gay.pancake.ambientled.util.ColorUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 
 /**
  * Led controller for Arduino based led strips
@@ -23,18 +24,7 @@ class PiLedUpdater implements LedUpdater {
     /** Buffer */
     private final byte[] buffer;
 
-    /** Brightness modifiers of red, green and blue leds */
-    private float r = 1.0f, g = 1.0f, b = 1.0f;
-
-    /**
-     * Initialize led strip controller
-     *
-     * @param ip IP of the Raspberry Pi
-     * @param port Port of the Raspberry Pi
-     * @param count Number of leds
-     * @throws IOException If the connection couldn't be established
-     */
-    public PiLedUpdater(String ip, int port, int count) throws IOException {
+    public PiLedUpdater(String ip, int port, int max, int count, float r, float g, float b, float lerp, int ups) throws IOException {
         AmbientLed.LOGGER.fine("Initializing raspberry pi led strip");
         this.port = port;
         this.socket = new Socket(ip, this.port);
@@ -44,16 +34,22 @@ class PiLedUpdater implements LedUpdater {
 
         if (!this.socket.isConnected())
             throw new IOException("Couldn't connect to raspberry pi");
+
+        // send header
+        var backingArray = new byte[4*7];
+        var buffer = ByteBuffer.wrap(backingArray);
+        buffer.putInt(max);
+        buffer.putInt(count);
+        buffer.putFloat(r);
+        buffer.putFloat(g);
+        buffer.putFloat(b);
+        buffer.putFloat(lerp);
+        buffer.putInt(ups);
+        buffer.flip();
+        this.stream.write(backingArray);
+        this.stream.flush();
     }
 
-    @Override
-    public void reduction(float r, float g, float b) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-    }
-
-    @Override
     public void clear() throws IOException {
         for (int i = 0; i < this.buffer.length / 3; i++)
             this.stream.write(new byte[] { (byte) 0, (byte) 0, (byte) 0 });
@@ -62,15 +58,15 @@ class PiLedUpdater implements LedUpdater {
     }
 
     @Override
-    public void write(ColorUtil.Color[] colors, int offset, int length) throws IOException {
-        for (int i = 0; i < length; i++) {
-            var color = colors[i + offset];
-            this.buffer[i * 3] = (byte) (color.getRed() * this.r);
-            this.buffer[i * 3 + 1] = (byte) (color.getGreen() * this.g);
-            this.buffer[i * 3 + 2] = (byte) (color.getBlue() * this.b);
+    public void write(ColorUtil.Color[] colors) throws IOException {
+        for (int i = 0; i < colors.length; i++) {
+            var color = colors[i];
+            this.buffer[i * 3] = (byte) color.getRed();
+            this.buffer[i * 3 + 1] = (byte) color.getGreen();
+            this.buffer[i * 3 + 2] = (byte) color.getBlue();
         }
-
         this.stream.write(this.buffer);
+        this.stream.flush();
     }
 
     @Override

@@ -1,11 +1,12 @@
-package gay.pancake.ambientled.host.updater;
+package gay.pancake.ambientled.updater;
 
 import com.fazecast.jSerialComm.SerialPort;
-import gay.pancake.ambientled.host.AmbientLed;
-import gay.pancake.ambientled.host.util.ColorUtil;
+import gay.pancake.ambientled.AmbientLed;
+import gay.pancake.ambientled.util.ColorUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -25,17 +26,7 @@ class ArduinoLedUpdater implements LedUpdater {
     /** Buffer */
     private final byte[] buffer;
 
-    /** Brightness modifiers of red, green and blue leds */
-    private float r = 1.0f, g = 1.0f, b = 1.0f;
-
-    /**
-     * Initialize a new Led strip and open the com port
-     *
-     * @param name Name of the com port
-     * @param count Number of leds
-     * @throws IOException If the com port couldn't be opened
-     */
-    public ArduinoLedUpdater(String name, int count) throws IOException {
+    public ArduinoLedUpdater(String name, int max, int count, float r, float g, float b, float lerp, int ups) throws IOException {
         AmbientLed.LOGGER.fine("Initializing arduino led strip");
         this.name = name;
         this.device = this.findComPort();
@@ -57,16 +48,22 @@ class ArduinoLedUpdater implements LedUpdater {
 
             }
         }
+
+        // send header FIXME: new pattern!!
+        var backingArray = new byte[4*7];
+        var buffer = ByteBuffer.wrap(backingArray);
+        buffer.putInt(ups);
+        buffer.putFloat(lerp);
+        buffer.putFloat(b);
+        buffer.putFloat(g);
+        buffer.putFloat(r);
+        buffer.putInt(count);
+        buffer.putInt(max);
+        buffer.flip();
+        this.stream.write(backingArray);
+        this.stream.flush();
     }
 
-    @Override
-    public void reduction(float r, float g, float b) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-    }
-
-    @Override
     public void clear() throws IOException {
         Arrays.fill(this.buffer, (byte) 0);
         this.stream.write(this.buffer);
@@ -74,12 +71,12 @@ class ArduinoLedUpdater implements LedUpdater {
     }
 
     @Override
-    public void write(ColorUtil.Color[] colors, int offset, int length) throws IOException {
-        for (int i = 0; i < length; i++) {
-            var color = colors[i + offset];
-            this.buffer[i * 3 ] = (byte) (color.getRed() * this.r);
-            this.buffer[i * 3 + 1] = (byte) (color.getGreen() * this.g);
-            this.buffer[i * 3 + 2] = (byte) (color.getBlue() * this.b);
+    public void write(ColorUtil.Color[] colors) throws IOException {
+        for (int i = 0; i < colors.length; i++) {
+            var color = colors[i];
+            this.buffer[i * 3 ] = (byte) color.getRed();
+            this.buffer[i * 3 + 1] = (byte) color.getGreen();
+            this.buffer[i * 3 + 2] = (byte) color.getBlue();
         }
         this.stream.write(this.buffer);
         this.stream.flush();
