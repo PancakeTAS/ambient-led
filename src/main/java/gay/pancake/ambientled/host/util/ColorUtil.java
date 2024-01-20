@@ -9,6 +9,28 @@ import com.sun.jna.Memory;
 public class ColorUtil {
 
     /**
+     * Color class
+     */
+    public static class Color {
+
+        /** Color value */
+        public int value = 0x00000000;
+
+        public int getRed() { return (value >> 16) & 0xFF; }
+        public int getGreen() { return (value >> 8) & 0xFF; }
+        public int getBlue() { return value & 0xFF; }
+
+        public Color setRGB(int r, int g, int b) {
+            this.value = (0xFF << 24) |
+                    ((r & 0xFF) << 16) |
+                    ((g & 0xFF) << 8)  |
+                    (b & 0xFF);
+            return this;
+        }
+
+    }
+
+    /**
      * Calculate average color of buffered image
      * @param image Buffered image
      * @param startX Start x
