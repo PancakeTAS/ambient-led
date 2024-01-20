@@ -1,4 +1,4 @@
-package gay.pancake.ambientled.host.util;
+package gay.pancake.ambientled.host.capture;
 
 import com.sun.jna.Memory;
 import com.sun.jna.platform.win32.GDI32;
@@ -9,9 +9,10 @@ import gay.pancake.ambientled.host.AmbientLed;
 
 /**
  * Utility class for capturing the desktop
+ *
  * @author Pancake
  */
-public class DesktopCapture {
+class WindowsDesktopCapture implements DesktopCapture {
 
     /** User32 instance */
     private static final User32 USER = User32.INSTANCE;
@@ -23,18 +24,7 @@ public class DesktopCapture {
     /** Device context */
     private final WinDef.HDC DC = GDI.CreateCompatibleDC(DESKTOP);
 
-    /** Capture record */
-    public record Capture(WinDef.HBITMAP bitmap, WinGDI.BITMAPINFO bitmapInfo, int x, int y, int width, int height, Memory memory) {}
-
-    /**
-     * Setup capture record for screen capture
-     * @param x X position
-     * @param y Y position
-     * @param width Width
-     * @param height Height
-     * @return Capture record
-     */
-    public Capture setupCapture(int x, int y, int width, int height) {
+    public Capture setupCapture(int screen, int x, int y, int width, int height) {
         AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
         // create bitmap info
@@ -47,26 +37,21 @@ public class DesktopCapture {
 
         // create capture record
         return new Capture(
-                GDI.CreateCompatibleBitmap(DESKTOP, width, height),
-                bitmapInfo,
                 x, y, width, height,
-                new Memory((long) width * height * 4)
+                new Memory((long) width * height * 4),
+                GDI.CreateCompatibleBitmap(DESKTOP, width, height),
+                bitmapInfo
         );
     }
 
-    /**
-     * Take screenshot of portion of screen
-     * @param capture Capture record
-     * @return Screenshot
-     */
-    public Memory screenshot(Capture capture) {
-        AmbientLed.LOGGER.finest("Taking screenshot of portion of screen: " + capture.x + ", " + capture.y + ", " + capture.width + ", " + capture.height);
+    public void screenshot(Capture capture) {
+        AmbientLed.LOGGER.finest("Taking screenshot of portion of screen: " + capture.x() + ", " + capture.y() + ", " + capture.width() + ", " + capture.height());
 
         // copy desktop into bitmap
-        GDI.SelectObject(DC, capture.bitmap);
-        GDI.BitBlt(DC, 0, 0, capture.width, capture.height, DESKTOP, capture.x, capture.y, GDI32.SRCCOPY);
-        GDI.GetDIBits(DESKTOP, capture.bitmap, 0, capture.height, capture.memory, capture.bitmapInfo, WinGDI.DIB_RGB_COLORS);
-        return capture.memory;
+        var bitmap = ((WinDef.HBITMAP) capture.attachment()[0]);
+        GDI.SelectObject(DC, bitmap);
+        GDI.BitBlt(DC, 0, 0, capture.width(), capture.height(), DESKTOP, capture.x(), capture.y(), GDI32.SRCCOPY);
+        GDI.GetDIBits(DESKTOP, bitmap, 0, capture.height(), capture.memory(), (WinGDI.BITMAPINFO) capture.attachment()[1], WinGDI.DIB_RGB_COLORS);
     }
 
 }
