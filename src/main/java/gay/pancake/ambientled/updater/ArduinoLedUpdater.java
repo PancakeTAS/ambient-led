@@ -7,7 +7,6 @@ import gay.pancake.ambientled.util.ColorUtil;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -31,37 +30,29 @@ class ArduinoLedUpdater implements LedUpdater {
         this.name = name;
         this.device = this.findComPort();
         this.device.openPort();
-        this.device.setBaudRate(460800);
+        this.device.setBaudRate(490800*2);
         this.stream = this.device.getOutputStream();
 
         this.buffer = new byte[count * 3];
 
-        // send reset sequence
-        var input = this.device.getInputStream();
-        while (input.available() < 1) {
-            this.stream.write("RESET!!!".getBytes(StandardCharsets.US_ASCII));
-            this.stream.flush();
-
-            try {
-                Thread.sleep(100);
-            } catch (Exception ignored) {
-
-            }
-        }
-
-        // send header FIXME: new pattern!!
-        var backingArray = new byte[4*7];
+        // send header
+        var backingArray = new byte[16];
         var buffer = ByteBuffer.wrap(backingArray);
-        buffer.putInt(ups);
-        buffer.putFloat(lerp);
-        buffer.putFloat(b);
-        buffer.putFloat(g);
-        buffer.putFloat(r);
-        buffer.putInt(count);
         buffer.putInt(max);
+        buffer.putInt(count);
+        buffer.put((byte) (r * 255.0f - 128));
+        buffer.put((byte) (g * 255.0f - 128));
+        buffer.put((byte) (b * 255.0f - 128));
+        buffer.put((byte) (lerp * 255.0f - 128));
+        buffer.putInt(ups);
         buffer.flip();
         this.stream.write(backingArray);
         this.stream.flush();
+
+        // wait for arduino to be ready
+        var in = this.device.getInputStream();
+        while (in.available() < 1)
+            Thread.yield();
     }
 
     public void clear() throws IOException {

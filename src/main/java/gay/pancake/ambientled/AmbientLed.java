@@ -63,8 +63,10 @@ public class AmbientLed {
      */
     private void reload(ConfigurationManager.Configuration configuration) {
         try {
-            if (this.instance != null)
+            if (this.instance != null) {
                 this.instance.close();
+                Thread.sleep(4000); // gotta be safe
+            }
 
             this.instance = new LedInstance(configuration);
         } catch (Exception e) {
