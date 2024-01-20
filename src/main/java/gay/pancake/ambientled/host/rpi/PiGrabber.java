@@ -1,11 +1,11 @@
 package gay.pancake.ambientled.host.rpi;
 
 import gay.pancake.ambientled.host.AmbientLed;
-import gay.pancake.ambientled.host.util.ColorUtil;
-import gay.pancake.ambientled.host.util.DesktopCapture;
+import gay.pancake.ambientled.host.capture.DesktopCapture;
 import lombok.RequiredArgsConstructor;
 
 import static gay.pancake.ambientled.host.AmbientLed.LOGGER;
+import static gay.pancake.ambientled.host.capture.DesktopCapture.DC;
 
 /**
  * Raspberry Pi screen grabber class
@@ -19,17 +19,13 @@ public class PiGrabber implements Runnable {
     private static final int HEIGHT = 1080;
     // Amount of LEDs
     private static final int LEDS = 144;
-    // Size of each LED in pixels
-    private static final int WIDTH_PER_LED = WIDTH / LEDS;
 
     /** Ambient led instance */
     private final AmbientLed led;
-    /** Desktop capture instance */
-    private final DesktopCapture dc = new DesktopCapture();
     /** Captures */
     private final DesktopCapture.Capture
-            TOP = this.dc.setupCapture(0, 0, WIDTH, 90),
-            BOTTOM = this.dc.setupCapture(0, HEIGHT - 90, WIDTH, 90);
+            TOP = DC.setupCapture(0, 0, 0, WIDTH, 90),
+            BOTTOM = DC.setupCapture(0, 0, HEIGHT - 90, WIDTH, 90);
 
     /**
      * Grab screen and calculate average color for each led
@@ -42,25 +38,12 @@ public class PiGrabber implements Runnable {
         var ms = System.currentTimeMillis();
 
         // capture screen
-        var top = this.dc.screenshot(TOP);
-        var bottom = this.dc.screenshot(BOTTOM);
+        DC.screenshot(TOP);
+        DC.screenshot(BOTTOM);
 
         // calculate average color for each led
-        for (int i = 0; i < LEDS; i++) {
-            ColorUtil.average(
-                    top, TOP.width(),
-                    WIDTH_PER_LED * i, 0,
-                    WIDTH_PER_LED - 1, 90,
-                    6, this.led.getPiUpdater().getColors()[i]
-            );
-
-            ColorUtil.average(
-                    bottom, BOTTOM.width(),
-                    WIDTH_PER_LED * i, 0,
-                    WIDTH_PER_LED - 1, 90,
-                    6, this.led.getPiUpdater().getColors()[i+LEDS]
-            );
-        }
+        DC.averages(TOP, true, false, this.led.getPiUpdater().getColors(), 0, LEDS);
+        DC.averages(BOTTOM, true, false, this.led.getPiUpdater().getColors(), LEDS, LEDS);
 
         LOGGER.finer("Grabbed screen for raspberry pi in " + (System.currentTimeMillis() - ms) + "ms");
     }

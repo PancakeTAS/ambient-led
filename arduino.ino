@@ -1,34 +1,58 @@
 #include <FastLED.h>
 #define NUM_LEDS 180
+#define BAUD_RATE 460800
 #define DATA_PIN 5
 
+// led array
 CRGB leds[NUM_LEDS];
-int should_update = 0;
+
+// serial buffer
+char buffer[NUM_LEDS * 3 + 1];
+int bufferIndex = 0;
+
+// reset sequence
+char resetSeq[] = {'R', 'E', 'S', 'E', 'T', '!', '!', '!'};
+int resetSeqLength = 8;
+int resetSeqIndex = 0;
 
 void setup() {
-  Serial.begin(38400);
-  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+    // setup serial and leds
+    Serial.begin(BAUD_RATE);
+    FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
 void loop() {
-  // read serial if available
-  while(Serial.available() >= 5) {
-    // parse index
-    int led = Serial.read() << 8 | Serial.read();
+    while (Serial.available()) {
+        // read serial data into buffer
+        buffer[bufferIndex] = Serial.read();
 
-    // parse colors
-    leds[led].red = Serial.read();
-    leds[led].green = Serial.read();
-    leds[led].blue = Serial.read();
+        // progress reset sequence
+        if (buffer[bufferIndex] == resetSeq[resetSeqIndex])
+            resetSeqIndex++;
+        else
+            resetSeqIndex = 0;
 
-    // increase update counter
-    should_update++;
-  }
+        // trigger reset
+        if (resetSeqIndex >= resetSeqLength) {
+            resetSeqIndex = 0;
+            bufferIndex = 0;
+            Serial.print(0xFF);
+            continue;
+        }
 
-  // update leds if every one was updated
-  if (should_update >= NUM_LEDS) {
-    FastLED.show();
-    // why the fuck am I documenting this in so much detail
-    should_update -= NUM_LEDS;
-  }
+        // update leds once buffer is full
+        bufferIndex++;
+        if (bufferIndex >= NUM_LEDS * 3) {
+            bufferIndex = 0;
+
+            for (int i = 0; i < NUM_LEDS; i++) {
+                leds[i].red = buffer[i*3];
+                leds[i].green = buffer[i*3+1];
+                leds[i].blue = buffer[i*3+2];
+            }
+
+            FastLED.show();
+        }
+
+    }
 }
