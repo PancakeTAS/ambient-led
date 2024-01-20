@@ -70,7 +70,7 @@ public class ConfigurationManager implements Closeable {
     /** The watch service for the configuration directory */
     private final WatchService watchService;
     /** The configuration directory */
-    private final Path configDir = Path.of("config");
+    private final Path currentDir = Path.of("");
     /** The watch thread */
     private final Thread watchThread;
 
@@ -87,7 +87,7 @@ public class ConfigurationManager implements Closeable {
     public ConfigurationManager(Consumer<Configuration> reload) throws IOException {
         this.reload = reload;
         this.watchService = FileSystems.getDefault().newWatchService();
-        this.configDir.register(this.watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+        this.currentDir.register(this.watchService, ENTRY_MODIFY);
         this.watchThread = new Thread(this::watch);
         this.watchThread.setDaemon(true);
         this.watchThread.setName("Configuration Watcher");
@@ -104,8 +104,8 @@ public class ConfigurationManager implements Closeable {
             while (true) {
                 var key = this.watchService.take();
 
-                for (var event : key.pollEvents())
-                    if (event.kind() == ENTRY_CREATE || event.kind() == ENTRY_MODIFY)
+                for (var e : key.pollEvents())
+                    if (e.context().equals(this.currentDir.resolve("config.json")))
                         this.reloadConfiguration();
 
                 key.reset();
@@ -120,7 +120,7 @@ public class ConfigurationManager implements Closeable {
      * Reloads the configuration
      */
     private void reloadConfiguration() {
-        var config = this.configDir.resolve("config.json");
+        var config = this.currentDir.resolve("config.json");
         if (!Files.exists(config))
             return;
 

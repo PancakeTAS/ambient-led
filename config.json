@@ -1,7 +1,7 @@
 {
     "ups": 60,
     "fps": 30,
-    "lerp:": 0.5,
+    "lerp": 0.5,
     "strips": [
         {
             "type": "pi",

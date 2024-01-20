@@ -31,7 +31,6 @@ public class AmbientLedRpi implements Closeable {
     /** Executor service */
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-
     /**
      * Create new ambient led
      *
@@ -158,6 +157,7 @@ public class AmbientLedRpi implements Closeable {
                 }
             }
         }
+
         serverSocket.close();
     }
 
