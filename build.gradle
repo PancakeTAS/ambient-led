@@ -10,7 +10,7 @@ base {
 }
 
 application {
-    mainClass = 'gay.pancake.ambientled.host.AmbientLed'
+    mainClass = 'gay.pancake.ambientled.AmbientLed'
 }
 
 java {
@@ -30,8 +30,8 @@ dependencies {
     implementation 'net.java.dev.jna:jna-platform:5.13.0'
 
     // add javacv for screen capture on linux
-    implementation 'org.bytedeco:javacv:1.5.9'
-    implementation 'org.bytedeco:javacv-platform:1.5.9'
+    implementation 'org.bytedeco:ffmpeg:6.0-1.5.9'
+    implementation 'org.bytedeco:ffmpeg-platform:6.0-1.5.9'
 
     // add gson for json
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -46,22 +46,22 @@ dependencies {
 
 tasks.register('uploadRpi1', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.53:/home/pancake/ambientled/".split(" ")
+    commandLine "bash", "-c", "echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.54:/home/pancake/ambientled/"
 }
 
 tasks.register('uploadRpi2', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "cmd.exe /k echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.57:/home/pancake/ambientled/".split(" ")
+    commandLine "bash", "-c", "echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.64:/home/pancake/ambientled/"
 }
 
 tasks.register('restartRpi1', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh pancake@192.168.178.53 sudo systemctl restart ambientled".split(" ")
+    commandLine "ssh pancake@192.168.178.54 sudo systemctl restart ambientled".split(" ")
 }
 
 tasks.register('restartRpi2', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh pancake@192.168.178.57 sudo systemctl restart ambientled".split(" ")
+    commandLine "ssh pancake@192.168.178.64 sudo systemctl restart ambientled".split(" ")
 }
 
 uploadRpi1.dependsOn shadowJar
