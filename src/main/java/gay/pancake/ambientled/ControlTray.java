@@ -1,11 +1,11 @@
-package gay.pancake.ambientled.host;
+package gay.pancake.ambientled;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import static gay.pancake.ambientled.host.AmbientLed.LOGGER;
+import static gay.pancake.ambientled.AmbientLed.LOGGER;
 
 public class ControlTray {
 

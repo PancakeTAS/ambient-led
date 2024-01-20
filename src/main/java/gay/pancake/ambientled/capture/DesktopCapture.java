@@ -1,7 +1,7 @@
-package gay.pancake.ambientled.host.capture;
+package gay.pancake.ambientled.capture;
 
 import com.sun.jna.Memory;
-import gay.pancake.ambientled.host.util.ColorUtil;
+import gay.pancake.ambientled.util.ColorUtil;
 
 import java.io.IOException;
 

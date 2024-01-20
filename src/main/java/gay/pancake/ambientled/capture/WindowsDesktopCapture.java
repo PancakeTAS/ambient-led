@@ -1,11 +1,11 @@
-package gay.pancake.ambientled.host.capture;
+package gay.pancake.ambientled.capture;
 
 import com.sun.jna.Memory;
 import com.sun.jna.platform.win32.GDI32;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinGDI;
-import gay.pancake.ambientled.host.AmbientLed;
+import gay.pancake.ambientled.AmbientLed;
 
 /**
  * Utility class for capturing the desktop

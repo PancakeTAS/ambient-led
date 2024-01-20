@@ -1,7 +1,7 @@
-package gay.pancake.ambientled.host.capture;
+package gay.pancake.ambientled.capture;
 
 import com.sun.jna.Memory;
-import gay.pancake.ambientled.host.AmbientLed;
+import gay.pancake.ambientled.AmbientLed;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 
