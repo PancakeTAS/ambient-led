@@ -1,12 +1,10 @@
-package gay.pancake.ambientled.host;
+package gay.pancake.ambientled;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.*;
 
 /**
@@ -37,60 +35,40 @@ public class AmbientLed {
     /** Is ambient led paused */
     @Getter @Setter private volatile boolean paused = false, frozen = false, efficiency = true;
 
-    private ControlTray tray;
-    private final ConfigurationManager config;
-    private final Map<String, LedInstance> instances = new HashMap<>();
+    private LedInstance instance;
 
     /**
      * Initialize host application
      *
      * @throws IOException If the system tray is not supported
-     * @throws InterruptedException If the main thread is interrupted
+     * @throws InterruptedException If the thread is interrupted
      */
     private AmbientLed() throws IOException, InterruptedException {
         try {
-            this.tray = new ControlTray(this);
+            new ControlTray(this);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Unable to initialize system tray", e);
         }
 
-        this.config = new ConfigurationManager(this::onAdd, this::onRemove);
-        LOGGER.info("Initialization complete");
-        Thread.sleep(Long.MAX_VALUE);
-    }
-
-    /**
-     * Add an instance
-     *
-     * @param name Instance name
-     * @param led Instance
-     */
-    private void onAdd(String name, LedInstance led) {
-        try {
-            LOGGER.info("Adding instance " + name);
-            var instance = this.instances.get(name);
-            if (instance != null)
-                instance.close();
-            this.instances.put(name, led);
-            led.open();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Unable to open instance " + name, e);
+        try (var ignored = new ConfigurationManager(this::reload)) {
+            LOGGER.info("Initialization complete");
+            Thread.sleep(Long.MAX_VALUE);
         }
     }
 
     /**
-     * Remove an instance
+     * Reload configuration
      *
-     * @param name Instance name
+     * @param configuration Configuration
      */
-    private void onRemove(String name) {
+    private void reload(ConfigurationManager.Configuration configuration) {
         try {
-            LOGGER.info("Removing instance " + name);
-            var instance = this.instances.remove(name);
-            if (instance != null)
-                instance.close();
+            if (this.instance != null)
+                this.instance.close();
+
+            this.instance = new LedInstance(configuration);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Unable to remove instance " + name, e);
+            LOGGER.log(Level.SEVERE, "Unable to initialize led instance", e);
         }
     }
 
