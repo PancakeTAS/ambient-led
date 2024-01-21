@@ -16,12 +16,13 @@ import java.nio.ByteBuffer;
 class LinuxDesktopCapture implements DesktopCapture {
 
     @Override
-    public Capture setupCapture(int screen, int x, int y, int width, int height) throws IOException {
+    public Capture setupCapture(int screen, int x, int y, int width, int height, int framerate) throws IOException {
         AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
         // create frame grabber
         var grabber = new FFmpegFrameGrabber(":0." + screen + "+" + x + "," + y);
         grabber.setFormat("x11grab");
+        grabber.setFrameRate(framerate);
         grabber.setImageWidth(width);
         grabber.setImageHeight(height);
         grabber.setPixelFormat(avutil.AV_PIX_FMT_BGRA);

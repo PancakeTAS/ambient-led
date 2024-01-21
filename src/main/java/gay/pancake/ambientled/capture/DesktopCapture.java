@@ -35,9 +35,10 @@ public interface DesktopCapture {
      * @param y Y position
      * @param width Width
      * @param height Height
+     * @param framerate Framerate
      * @return Capture record
      */
-    Capture setupCapture(int screen, int x, int y, int width, int height) throws IOException;
+    Capture setupCapture(int screen, int x, int y, int width, int height, int framerate) throws IOException;
 
     /**
      * Take screenshot of portion of screen

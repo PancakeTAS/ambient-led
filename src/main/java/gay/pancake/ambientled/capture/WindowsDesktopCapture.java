@@ -25,7 +25,7 @@ class WindowsDesktopCapture implements DesktopCapture {
     private final WinDef.HDC DC = GDI.CreateCompatibleDC(DESKTOP);
 
     @Override
-    public Capture setupCapture(int screen, int x, int y, int width, int height) {
+    public Capture setupCapture(int screen, int x, int y, int width, int height, int framerate) {
         AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
         // create bitmap info

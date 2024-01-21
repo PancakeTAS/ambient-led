@@ -63,7 +63,7 @@ public class LedInstance {
             this.captures[i] = new DesktopCapture.Capture[strip.segments().size()];
             for (int j = 0; j < strip.segments().size(); j++) {
                 var segment = strip.segments().get(j);
-                this.captures[i][j] = DC.setupCapture(segment.display(), segment.x(), segment.y(), segment.width(), segment.height());
+                this.captures[i][j] = DC.setupCapture(segment.display(), segment.x(), segment.y(), segment.width(), segment.height(), config.fps());
             }
         }
 
@@ -83,7 +83,6 @@ public class LedInstance {
      * @throws IOException If an I/O error occurs
      */
     public void render() throws IOException {
-        long ms = System.currentTimeMillis();
         for (int stripIndex = 0; stripIndex < this.updaters.length; stripIndex++) {
             var strip = this.config.strips().get(stripIndex);
 
@@ -104,7 +103,6 @@ public class LedInstance {
             // write colors
             this.updaters[stripIndex].write(this.colors[stripIndex]);
         }
-        LOGGER.log(Level.FINE, "Rendered in " + (System.currentTimeMillis() - ms) + "ms");
     }
 
     /**
