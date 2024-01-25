@@ -9,11 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchService;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import static gay.pancake.ambientled.AmbientLed.LOGGER;
-import static java.nio.file.StandardWatchEventKinds.*;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 /**
  * Configuration manager for the led strip
@@ -75,7 +75,7 @@ public class ConfigurationManager implements Closeable {
     private final Thread watchThread;
 
     /** The reload consumer */
-    private final Consumer<Configuration> reload;
+    private final Function<Configuration, Boolean> reload;
 
 
     /**
@@ -84,7 +84,7 @@ public class ConfigurationManager implements Closeable {
      * @param reload The reload consumer
      * @throws IOException If an I/O error occurs
      */
-    public ConfigurationManager(Consumer<Configuration> reload) throws IOException {
+    public ConfigurationManager(Function<Configuration, Boolean> reload) throws IOException {
         this.reload = reload;
         this.watchService = FileSystems.getDefault().newWatchService();
         this.currentDir.register(this.watchService, ENTRY_MODIFY);
@@ -125,9 +125,11 @@ public class ConfigurationManager implements Closeable {
             return;
 
         try {
-            this.reload.accept(GSON.fromJson(Files.newBufferedReader(config), Configuration.class));
+            var gson = GSON.fromJson(Files.newBufferedReader(config), Configuration.class);
+            while (!this.reload.apply(gson))
+                Thread.yield();
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed to (re)load configuration!", e);
+            LOGGER.log(Level.SEVERE, "Failed to read configuration!", e);
         }
     }
 

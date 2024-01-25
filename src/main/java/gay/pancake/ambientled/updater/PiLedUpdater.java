@@ -72,9 +72,8 @@ class PiLedUpdater implements LedUpdater {
     @Override
     public void close() throws IOException {
         AmbientLed.LOGGER.fine("Closing raspberry pi led strip on port " + this.port);
-        this.clear();
-        this.stream.close();
         this.socket.close();
+        this.stream.close();
     }
 
 }

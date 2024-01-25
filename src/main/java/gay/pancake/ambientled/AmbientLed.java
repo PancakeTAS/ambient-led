@@ -60,17 +60,25 @@ public class AmbientLed {
      * Reload configuration
      *
      * @param configuration Configuration
+     * @return If the configuration was reloaded
      */
-    private void reload(ConfigurationManager.Configuration configuration) {
+    private boolean reload(ConfigurationManager.Configuration configuration) {
         try {
-            if (this.instance != null) {
+            if (this.instance != null)
                 this.instance.close();
-                Thread.sleep(4000); // gotta be safe
-            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Unable to close led instance", e);
+            return false;
+        }
 
-            this.instance = new LedInstance(configuration);
+        try {
+            Thread.sleep(12000); // gotta be safe
+            LOGGER.info("Initializing new led instance");
+            this.instance = new LedInstance(configuration, this::reload);
+            return true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unable to initialize led instance", e);
+            return false;
         }
     }
 

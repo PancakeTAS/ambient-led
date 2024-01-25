@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import static gay.pancake.ambientled.AmbientLed.LOGGER;
@@ -30,12 +32,15 @@ public class LedInstance {
     /** Colors for led segments */
     private ColorUtil.Color[][] colors;
 
+    /** Has failed */
+    private AtomicBoolean failed = new AtomicBoolean(false);
+
     /**
      * Open the instance
      *
      * @throws IOException If an I/O error occurs
      */
-    public LedInstance(ConfigurationManager.Configuration config) throws IOException {
+    public LedInstance(ConfigurationManager.Configuration config, Function<ConfigurationManager.Configuration, Boolean> reload) throws IOException {
         this.config = config;
 
         // setup all strips
@@ -70,9 +75,17 @@ public class LedInstance {
         // start rendering
         this.executor.scheduleAtFixedRate(() -> {
             try {
+                if (this.failed.get())
+                    return;
                 this.render();
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Failed to render", e);
+                new Thread(() -> {
+                    LOGGER.log(Level.INFO, "Reloading configuration");
+                    while (!reload.apply(this.config))
+                        Thread.yield();
+                }).start();
+                this.failed.set(true);
             }
         }, 0, 1000000 / this.config.fps(), TimeUnit.MICROSECONDS);
     }
@@ -92,12 +105,8 @@ public class LedInstance {
                 var segment = strip.segments().get(segmentIndex);
                 var capture = this.captures[stripIndex][segmentIndex];
 
-                try {
-                    DC.screenshot(capture);
-                    DC.averages(capture, segment.orientation(), segment.invert(), colors, segment.offset(), segment.length(), segment.steps());
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Failed to render segment " + segmentIndex + " of strip " + stripIndex, e);
-                }
+                DC.screenshot(capture);
+                DC.averages(capture, segment.orientation(), segment.invert(), colors, segment.offset(), segment.length(), segment.steps());
             }
 
             // write colors
@@ -113,14 +122,14 @@ public class LedInstance {
     public void close() throws IOException {
         this.executor.close();
 
-        if (this.updaters != null)
-            for (var updater : this.updaters)
-                updater.close();
-
         if (this.captures != null)
             for (var strip : this.captures)
                 for (var capture : strip)
                     DC.free(capture);
+
+        if (this.updaters != null)
+            for (var updater : this.updaters)
+                updater.close();
     }
 
 }

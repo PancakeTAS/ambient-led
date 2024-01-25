@@ -76,9 +76,8 @@ class ArduinoLedUpdater implements LedUpdater {
     @Override
     public void close() throws IOException {
         AmbientLed.LOGGER.fine("Closing arduino led strip");
-        this.clear();
-        this.stream.close();
         this.device.closePort();
+        this.stream.close();
     }
 
     /**
