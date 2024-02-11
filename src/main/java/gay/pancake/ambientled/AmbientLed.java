@@ -1,8 +1,5 @@
 package gay.pancake.ambientled;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.*;
@@ -32,9 +29,6 @@ public class AmbientLed {
         LOGGER.addHandler(handler);
     }
 
-    /** Is ambient led paused */
-    @Getter @Setter private volatile boolean paused = false, frozen = false, efficiency = true;
-
     private LedInstance instance;
 
     /**
@@ -44,12 +38,6 @@ public class AmbientLed {
      * @throws InterruptedException If the thread is interrupted
      */
     private AmbientLed() throws IOException, InterruptedException {
-        try {
-            new ControlTray(this);
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Unable to initialize system tray", e);
-        }
-
         try (var ignored = new ConfigurationManager(this::reload)) {
             LOGGER.info("Initialization complete");
             Thread.sleep(Long.MAX_VALUE);
@@ -72,7 +60,6 @@ public class AmbientLed {
         }
 
         try {
-            Thread.sleep(12000); // gotta be safe
             LOGGER.info("Initializing new led instance");
             this.instance = new LedInstance(configuration, this::reload);
             return true;
