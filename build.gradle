@@ -46,22 +46,22 @@ dependencies {
 
 tasks.register('uploadRpi1', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "bash", "-c", "echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.54:/home/pancake/ambientled/"
+    commandLine "bash", "-c", "echo put ${base.archivesName.get()}-${version}-all.jar | sftp topled:/home/pancake/ambientled/"
 }
 
 tasks.register('uploadRpi2', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "bash", "-c", "echo put ${base.archivesName.get()}-${version}-all.jar | sftp pancake@192.168.178.64:/home/pancake/ambientled/"
+    commandLine "bash", "-c", "echo put ${base.archivesName.get()}-${version}-all.jar | sftp bottomled:/home/pancake/ambientled/"
 }
 
 tasks.register('restartRpi1', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh pancake@192.168.178.54 sudo systemctl restart ambientled".split(" ")
+    commandLine "ssh topled sudo systemctl restart ambientled".split(" ")
 }
 
 tasks.register('restartRpi2', Exec) {
     workingDir "${buildDir}/libs"
-    commandLine "ssh pancake@192.168.178.64 sudo systemctl restart ambientled".split(" ")
+    commandLine "ssh bottomled sudo systemctl restart ambientled".split(" ")
 }
 
 uploadRpi1.dependsOn shadowJar

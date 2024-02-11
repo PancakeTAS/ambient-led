@@ -59,8 +59,8 @@
                 {
                     "offset": 0,
                     "length": 47,
-                    "display": 1,
-                    "x": 3540,
+                    "display": 0,
+                    "x": 9300,
                     "y": 0,
                     "width": 300,
                     "height": 2160,
@@ -71,8 +71,8 @@
                 {
                     "offset": 47,
                     "length": 76,
-                    "display": 1,
-                    "x": 0,
+                    "display": 0,
+                    "x": 5760,
                     "y": 0,
                     "width": 3840,
                     "height": 180,
@@ -83,8 +83,8 @@
                 {
                     "offset": 123,
                     "length": 57,
-                    "display": 1,
-                    "x": 0,
+                    "display": 0,
+                    "x": 5760,
                     "y": 0,
                     "width": 300,
                     "height": 2160,
