@@ -24,6 +24,8 @@ class ArduinoLedUpdater implements LedUpdater {
     private final OutputStream stream;
     /** Buffer */
     private final byte[] buffer;
+    /** Last sent colors */
+    private long lastSent = -1;
 
     public ArduinoLedUpdater(String name, int max, int count, float r, float g, float b, float lerp, int ups) throws IOException {
         AmbientLed.LOGGER.fine("Initializing arduino led strip");
@@ -55,14 +57,12 @@ class ArduinoLedUpdater implements LedUpdater {
             Thread.yield();
     }
 
-    public void clear() throws IOException {
-        Arrays.fill(this.buffer, (byte) 0);
-        this.stream.write(this.buffer);
-        this.stream.flush();
-    }
-
     @Override
     public void write(ColorUtil.Color[] colors) throws IOException {
+        var time = System.currentTimeMillis();
+        if (this.lastSent != -1 && time - this.lastSent > 2000)
+            throw new IOException("No data sent for 2 seconds");
+
         for (int i = 0; i < colors.length; i++) {
             var color = colors[i];
             this.buffer[i * 3 ] = (byte) color.getRed();
@@ -71,6 +71,7 @@ class ArduinoLedUpdater implements LedUpdater {
         }
         this.stream.write(this.buffer);
         this.stream.flush();
+        this.lastSent = time;
     }
 
     @Override

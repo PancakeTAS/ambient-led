@@ -33,7 +33,7 @@ public class LedInstance {
     private ColorUtil.Color[][] colors;
 
     /** Has failed */
-    private AtomicBoolean failed = new AtomicBoolean(false);
+    private final AtomicBoolean failed = new AtomicBoolean(false);
 
     /**
      * Open the instance
@@ -42,6 +42,13 @@ public class LedInstance {
      */
     public LedInstance(ConfigurationManager.Configuration config, Function<ConfigurationManager.Configuration, Boolean> reload) throws IOException {
         this.config = config;
+
+        // ensure devices are ready
+        try {
+            Thread.sleep(2100);
+        } catch (Exception e) {
+            AmbientLed.LOGGER.warning("Failed to sleep");
+        }
 
         // setup all strips
         var strips = this.config.strips();

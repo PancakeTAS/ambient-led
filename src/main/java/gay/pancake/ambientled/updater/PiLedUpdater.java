@@ -50,13 +50,6 @@ class PiLedUpdater implements LedUpdater {
         this.stream.flush();
     }
 
-    public void clear() throws IOException {
-        for (int i = 0; i < this.buffer.length / 3; i++)
-            this.stream.write(new byte[] { (byte) 0, (byte) 0, (byte) 0 });
-
-        this.stream.flush();
-    }
-
     @Override
     public void write(ColorUtil.Color[] colors) throws IOException {
         for (int i = 0; i < colors.length; i++) {

@@ -125,7 +125,7 @@ public class AmbientLedRpi implements Closeable {
             try (var socket = serverSocket.accept();
                  var input = socket.getInputStream()) {
                 socket.setTcpNoDelay(true);
-                socket.setSoTimeout(5000);
+                socket.setSoTimeout(2000);
                 LOGGER.info("Connection established from " + socket.getInetAddress());
 
                 var backingArray = new byte[4*7];
