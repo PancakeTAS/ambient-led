@@ -1,6 +1,8 @@
 package gay.pancake.ambientled.capture;
 
 import gay.pancake.ambientled.AmbientLed;
+import gay.pancake.ambientled.ConfigurationManager;
+import gay.pancake.ambientled.util.ColorUtil;
 import gay.pancake.ambientled.util.NvFBCInstance;
 
 /**
@@ -11,23 +13,20 @@ import gay.pancake.ambientled.util.NvFBCInstance;
 class LinuxDesktopCapture implements DesktopCapture {
 
     @Override
-    public Capture setupCapture(String screen, int x, int y, int width, int height, int framerate) {
-        AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
+    public Capture setupCapture(ConfigurationManager.Segment strip, int framerate) {
+        AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + strip.x() + ", " + strip.y() + ", " + strip.width() + ", " + strip.height());
 
-        var nvfbc = new NvFBCInstance(screen, x, y, width, height, width, height, framerate);
+        // create nvfbc instance
+        var nvfbc = new NvFBCInstance(strip.display(), strip.x(), strip.y(), strip.width(), strip.height(), strip.orientation() ? strip.length() : 1, strip.orientation() ? 1 : strip.length(), framerate);
         nvfbc.start();
 
         // create capture record
-        return new Capture(
-                x, y, width, height,
-                nvfbc.buffer.join(),
-                nvfbc
-        );
+        return new Capture(strip, nvfbc.buffer.join(), nvfbc);
     }
 
     @Override
     public void screenshot(Capture capture) {
-        AmbientLed.LOGGER.finest("Taking screenshot of portion of screen: " + capture.x() + ", " + capture.y() + ", " + capture.width() + ", " + capture.height());
+        AmbientLed.LOGGER.finest("Taking screenshot of portion of screen: " + capture.strip().x() + ", " + capture.strip().y() + ", " + capture.strip().width() + ", " + capture.strip().height());
     }
 
     @Override
@@ -35,4 +34,16 @@ class LinuxDesktopCapture implements DesktopCapture {
         AmbientLed.LOGGER.warning("Freeing NvFBC instance is not supported yet");
         System.exit(1);
     }
+
+    @Override
+    public void averages(Capture memory, ColorUtil.Color[] colors) {
+        AmbientLed.LOGGER.finest("Calculating average color for each led");
+        for (int i = 0; i < memory.strip().length(); i++)
+            colors[memory.strip().offset() + (memory.strip().invert() ? memory.strip().length() - i - 1 : i)].setRGB(
+                    (Byte.toUnsignedInt(memory.memory().getByte(i * 3L) )),
+                    (Byte.toUnsignedInt(memory.memory().getByte(i * 3L + 1))),
+                    (Byte.toUnsignedInt(memory.memory().getByte(i * 3L + 2) ))
+            );
+    }
+
 }

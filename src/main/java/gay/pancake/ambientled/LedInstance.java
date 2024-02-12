@@ -75,7 +75,7 @@ public class LedInstance {
             this.captures[i] = new DesktopCapture.Capture[strip.segments().size()];
             for (int j = 0; j < strip.segments().size(); j++) {
                 var segment = strip.segments().get(j);
-                this.captures[i][j] = DC.setupCapture(segment.display(), segment.x(), segment.y(), segment.width(), segment.height(), config.fps());
+                this.captures[i][j] = DC.setupCapture(segment, config.fps());
             }
         }
 
@@ -113,7 +113,7 @@ public class LedInstance {
                 var capture = this.captures[stripIndex][segmentIndex];
 
                 DC.screenshot(capture);
-                DC.averages(capture, segment.orientation(), segment.invert(), colors, segment.offset(), segment.length(), segment.steps());
+                DC.averages(capture, colors);
             }
 
             // write colors

@@ -16,7 +16,7 @@
                     "x": 0,
                     "y": 0,
                     "width": 1920,
-                    "height": 1080,
+                    "height": 90,
                     "steps": 4,
                     "orientation": true,
                     "invert": false
@@ -38,9 +38,9 @@
                     "length": 144,
                     "display": "DP-4",
                     "x": 0,
-                    "y": 0,
+                    "y": 990,
                     "width": 1920,
-                    "height": 1080,
+                    "height": 90,
                     "steps": 4,
                     "orientation": true,
                     "invert": false

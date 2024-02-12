@@ -11,9 +11,9 @@ import java.util.function.Consumer;
 
 import static gay.pancake.capture.enums.NVFBCSTATUS.NVFBC_SUCCESS;
 import static gay.pancake.capture.enums.NVFBC_BOOL.NVFBC_FALSE;
-import static gay.pancake.capture.enums.NVFBC_BUFFER_FORMAT.NVFBC_BUFFER_FORMAT_BGRA;
+import static gay.pancake.capture.enums.NVFBC_BUFFER_FORMAT.NVFBC_BUFFER_FORMAT_RGB;
 import static gay.pancake.capture.enums.NVFBC_CAPTURE_TYPE.NVFBC_CAPTURE_TO_SYS;
-import static gay.pancake.capture.enums.NVFBC_TOSYS_GRAB_FLAGS.NVFBC_TOSYS_GRAB_FLAGS_NOFLAGS;
+import static gay.pancake.capture.enums.NVFBC_TOSYS_GRAB_FLAGS.NVFBC_TOSYS_GRAB_FLAGS_NOWAIT;
 import static gay.pancake.capture.enums.NVFBC_TRACKING_TYPE.NVFBC_TRACKING_OUTPUT;
 import static gay.pancake.capture.enums.NVFBC_TRACKING_TYPE.NVFBC_TRACKING_SCREEN;
 
@@ -145,7 +145,7 @@ public class NvFBCInstance extends Thread {
             throw new RuntimeException("Failed to create capture session: Error " + err);
 
         // setup capture session
-        this.toSysSetUpParams.eBufferFormat = NVFBC_BUFFER_FORMAT_BGRA;
+        this.toSysSetUpParams.eBufferFormat = NVFBC_BUFFER_FORMAT_RGB;
         this.toSysSetUpParams.ppBuffer = pFrame;
         this.toSysSetUpParams.bWithDiffMap = NVFBC_FALSE;
 
@@ -160,7 +160,7 @@ public class NvFBCInstance extends Thread {
         while (true) {
 
             // grab frame
-            this.toSysGrabFrameParams.dwFlags = NVFBC_TOSYS_GRAB_FLAGS_NOFLAGS;
+            this.toSysGrabFrameParams.dwFlags = NVFBC_TOSYS_GRAB_FLAGS_NOWAIT;
             this.toSysGrabFrameParams.pFrameGrabInfo = this.frameGrabInfo;
 
             err = NvFBC.INSTANCE.NvFBCToSysGrabFrame(this.sessionHandle.getValue(), this.toSysGrabFrameParams);
