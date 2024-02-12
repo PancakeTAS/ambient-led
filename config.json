@@ -12,11 +12,11 @@
                 {
                     "offset": 0,
                     "length": 144,
-                    "display": 0,
-                    "x": 1920,
+                    "display": "DP-4",
+                    "x": 0,
                     "y": 0,
                     "width": 1920,
-                    "height": 90,
+                    "height": 1080,
                     "steps": 4,
                     "orientation": true,
                     "invert": false
@@ -36,11 +36,11 @@
                 {
                     "offset": 0,
                     "length": 144,
-                    "display": 0,
-                    "x": 1920,
-                    "y": 990,
+                    "display": "DP-4",
+                    "x": 0,
+                    "y": 0,
                     "width": 1920,
-                    "height": 90,
+                    "height": 1080,
                     "steps": 4,
                     "orientation": true,
                     "invert": false
@@ -59,8 +59,8 @@
                 {
                     "offset": 0,
                     "length": 47,
-                    "display": 0,
-                    "x": 9300,
+                    "display": "DP-0",
+                    "x": 3540,
                     "y": 0,
                     "width": 300,
                     "height": 2160,
@@ -71,8 +71,8 @@
                 {
                     "offset": 47,
                     "length": 76,
-                    "display": 0,
-                    "x": 5760,
+                    "display": "DP-0",
+                    "x": 0,
                     "y": 0,
                     "width": 3840,
                     "height": 180,
@@ -83,8 +83,8 @@
                 {
                     "offset": 123,
                     "length": 57,
-                    "display": 0,
-                    "x": 5760,
+                    "display": "DP-0",
+                    "x": 0,
                     "y": 0,
                     "width": 300,
                     "height": 2160,
