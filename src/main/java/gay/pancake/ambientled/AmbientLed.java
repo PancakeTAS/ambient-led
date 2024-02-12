@@ -56,6 +56,7 @@ public class AmbientLed {
                 this.instance.close();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unable to close led instance", e);
+            e.printStackTrace();
             return false;
         }
 
@@ -65,6 +66,7 @@ public class AmbientLed {
             return true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Unable to initialize led instance", e);
+            e.printStackTrace();
             return false;
         }
     }
