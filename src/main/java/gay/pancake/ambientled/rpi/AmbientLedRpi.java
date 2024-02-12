@@ -89,7 +89,7 @@ public class AmbientLedRpi implements Closeable {
                 LOGGER.log(Level.SEVERE, "Error while updating leds", e);
                 e.printStackTrace();
             }
-        }, 0, 1000000 / ups, TimeUnit.MICROSECONDS);
+        }, 0, 1000 / ups, TimeUnit.MILLISECONDS);
     }
 
     /**

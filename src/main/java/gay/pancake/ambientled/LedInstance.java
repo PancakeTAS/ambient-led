@@ -94,7 +94,7 @@ public class LedInstance {
                 }).start();
                 this.failed.set(true);
             }
-        }, 0, 1000000 / this.config.fps(), TimeUnit.MICROSECONDS);
+        }, 0, 1000 / this.config.fps(), TimeUnit.MILLISECONDS);
     }
 
     /**

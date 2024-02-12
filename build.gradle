@@ -14,11 +14,12 @@ application {
 }
 
 java {
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
     mavenCentral()
+    maven { url 'https://maven.mgnet.work/main' }
 }
 
 dependencies {
@@ -28,6 +29,9 @@ dependencies {
     // add jna for screen capture
     implementation 'net.java.dev.jna:jna:5.13.0'
     implementation 'net.java.dev.jna:jna-platform:5.13.0'
+
+    // add nvfbc for screen capture on linux
+    implementation 'gay.pancake:nvidia-capture-java:8.1'
 
     // add gson for json
     implementation 'com.google.code.gson:gson:2.10.1'
