@@ -4,8 +4,6 @@ import com.sun.jna.Pointer;
 import gay.pancake.ambientled.ConfigurationManager;
 import gay.pancake.ambientled.util.ColorUtil;
 
-import java.io.IOException;
-
 /**
  * Abstract class for capturing the desktop
  *
@@ -32,21 +30,21 @@ public interface DesktopCapture {
      * @param framerate Framerate
      * @return Capture record
      */
-    Capture setupCapture(ConfigurationManager.Segment strip, int framerate) throws IOException;
+    Capture setupCapture(ConfigurationManager.Segment strip, int framerate);
 
     /**
      * Take screenshot of portion of screen
      *
      * @param capture Capture record
      */
-    void screenshot(Capture capture) throws IOException;
+    void screenshot(Capture capture);
 
     /**
      * Free memory of capture record
      *
      * @param capture Capture record
      */
-    void free(Capture capture) throws IOException;
+    void free(Capture capture);
 
     /**
      * Calculate average color for each led

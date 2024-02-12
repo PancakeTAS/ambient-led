@@ -7,7 +7,6 @@ import gay.pancake.ambientled.util.ColorUtil;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * Led controller for Arduino based led strips

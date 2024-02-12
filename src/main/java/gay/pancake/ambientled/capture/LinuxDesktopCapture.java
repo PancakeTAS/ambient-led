@@ -31,13 +31,11 @@ class LinuxDesktopCapture implements DesktopCapture {
 
     @Override
     public void free(Capture capture) {
-        AmbientLed.LOGGER.warning("Freeing NvFBC instance is not supported yet");
-        System.exit(1);
+        ((NvFBCInstance) capture.attachment()[0]).close();
     }
 
     @Override
     public void averages(Capture memory, ColorUtil.Color[] colors) {
-        AmbientLed.LOGGER.finest("Calculating average color for each led");
         for (int i = 0; i < memory.strip().length(); i++)
             colors[memory.strip().offset() + (memory.strip().invert() ? memory.strip().length() - i - 1 : i)].setRGB(
                     (Byte.toUnsignedInt(memory.memory().getByte(i * 3L) )),

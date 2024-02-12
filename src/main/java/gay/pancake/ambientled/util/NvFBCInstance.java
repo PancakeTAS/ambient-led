@@ -7,6 +7,7 @@ import gay.pancake.capture.NvFBC;
 import gay.pancake.capture.structs.*;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static gay.pancake.capture.enums.NVFBCSTATUS.NVFBC_SUCCESS;
@@ -67,10 +68,17 @@ public class NvFBCInstance extends Thread {
     /** The frame info */
     private final NVFBC_FRAME_GRAB_INFO frameGrabInfo = new NVFBC_FRAME_GRAB_INFO();
 
+    /** The destroy capture session params */
+    private final NVFBC_DESTROY_CAPTURE_SESSION_PARAMS destroyCaptureSessionParams = new NVFBC_DESTROY_CAPTURE_SESSION_PARAMS();
+    /** The destroy handle params */
+    private final NVFBC_DESTROY_HANDLE_PARAMS destroyHandleParams = new NVFBC_DESTROY_HANDLE_PARAMS();
+
     /** The initial future */
     public final CompletableFuture<Pointer> buffer = new CompletableFuture<>();
     /** The callback */
     private Consumer<Pointer> callback;
+    /** The close flag */
+    private final AtomicBoolean close = new AtomicBoolean(false);
 
     /**
      * Create a new NvFBC instance
@@ -106,6 +114,13 @@ public class NvFBCInstance extends Thread {
      */
     public void callback(Consumer<Pointer> callback) {
         this.callback = callback;
+    }
+
+    /**
+     * Close the NvFBC instance
+     */
+    public void close() {
+        this.close.set(true);
     }
 
     @Override
@@ -157,7 +172,7 @@ public class NvFBCInstance extends Thread {
         this.buffer.complete(this.pFrame.getValue());
 
         // start capturing
-        while (true) {
+        while (!this.close.get()) {
 
             // grab frame
             this.toSysGrabFrameParams.dwFlags = NVFBC_TOSYS_GRAB_FLAGS_NOWAIT;
@@ -171,6 +186,28 @@ public class NvFBCInstance extends Thread {
             if (this.callback != null) this.callback.accept(this.pFrame.getValue());
 
         }
+
+        // close capture session
+        err = NvFBC.INSTANCE.NvFBCDestroyCaptureSession(this.sessionHandle.getValue(), this.destroyCaptureSessionParams);
+        if (err != NVFBC_SUCCESS)
+            throw new RuntimeException("Failed to destroy capture session: Error " + err);
+
+        // destroy handle
+        // seems to always return 2, but it works
+        NvFBC.INSTANCE.NvFBCDestroyHandle(this.sessionHandle.getValue(), this.destroyHandleParams);
+
+        // free native resources
+        this.source.clear();
+        this.destination.clear();
+        this.createHandleParams.clear();
+        this.getStatusParams.clear();
+        this.createCaptureSessionParams.clear();
+        this.toSysSetUpParams.clear();
+        this.toSysGrabFrameParams.clear();
+        this.frameGrabInfo.clear();
+        this.destroyCaptureSessionParams.clear();
+        this.destroyHandleParams.clear();
+
     }
 
 }
