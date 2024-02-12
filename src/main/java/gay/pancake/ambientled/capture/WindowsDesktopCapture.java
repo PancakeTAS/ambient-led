@@ -58,7 +58,7 @@ class WindowsDesktopCapture implements DesktopCapture {
 
     @Override
     public void free(Capture capture) {
-        capture.memory().close();
+        ((Memory) capture.memory()).close();
         ((WinGDI.BITMAPINFO) capture.attachment()[1]).clear();
         GDI.DeleteObject((WinDef.HBITMAP) capture.attachment()[0]);
     }

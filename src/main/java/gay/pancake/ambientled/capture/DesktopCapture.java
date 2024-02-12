@@ -1,6 +1,6 @@
 package gay.pancake.ambientled.capture;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import gay.pancake.ambientled.util.ColorUtil;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public interface DesktopCapture {
      * @param memory Memory
      * @param attachment Attachment
      */
-    record Capture(int x, int y, int width, int height, Memory memory, Object... attachment) {}
+    record Capture(int x, int y, int width, int height, Pointer memory, Object... attachment) {}
 
     /**
      * Setup capture record for screen capture

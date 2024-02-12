@@ -1,6 +1,6 @@
 package gay.pancake.ambientled.util;
 
-import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 
 /**
  * Utility class for math with colors
@@ -31,14 +31,14 @@ public class ColorUtil {
 
     /**
      * Calculate average color of buffered image
-     * @param image Buffered image
+     * @param image Image pointer
      * @param startX Start x
      * @param startY Start y
      * @param width Width
      * @param height Height
      * @param step Step size
      */
-    public static void average(Memory image, int imageWidth, int startX, int startY, int width, int height, int step, Color cc) {
+    public static void average(Pointer image, int imageWidth, int startX, int startY, int width, int height, int step, Color cc) {
         int total = 0, red_total = 0, green_total = 0, blue_total = 0;
 
         // iterate through each pixel of the image with the given step size
