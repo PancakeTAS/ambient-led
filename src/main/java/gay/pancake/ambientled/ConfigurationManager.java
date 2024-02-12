@@ -36,7 +36,7 @@ public class ConfigurationManager implements Closeable {
      * @param orientation The orientation of the segment (true = horizontal, false = vertical)
      * @param invert If the segment is inverted
      */
-    public record Segment(int offset, int length, int display, int x, int y, int width, int height, int steps, boolean orientation, boolean invert) {}
+    public record Segment(int offset, int length, String display, int x, int y, int width, int height, int steps, boolean orientation, boolean invert) {}
 
     /**
      * Strip of leds

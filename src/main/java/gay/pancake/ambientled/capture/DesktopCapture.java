@@ -38,7 +38,7 @@ public interface DesktopCapture {
      * @param framerate Framerate
      * @return Capture record
      */
-    Capture setupCapture(int screen, int x, int y, int width, int height, int framerate) throws IOException;
+    Capture setupCapture(String screen, int x, int y, int width, int height, int framerate) throws IOException;
 
     /**
      * Take screenshot of portion of screen

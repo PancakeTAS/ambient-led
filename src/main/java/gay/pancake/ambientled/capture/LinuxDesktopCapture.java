@@ -12,7 +12,7 @@ import java.io.IOException;
 class LinuxDesktopCapture implements DesktopCapture {
 
     @Override
-    public Capture setupCapture(int screen, int x, int y, int width, int height, int framerate) throws IOException {
+    public Capture setupCapture(String screen, int x, int y, int width, int height, int framerate) throws IOException {
         AmbientLed.LOGGER.fine("Setting up capture record for screen capture: " + x + ", " + y + ", " + width + ", " + height);
 
 //        // create frame grabber
