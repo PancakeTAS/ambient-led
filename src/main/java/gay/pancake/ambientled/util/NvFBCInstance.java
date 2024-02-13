@@ -185,6 +185,13 @@ public class NvFBCInstance extends Thread {
             // trigger callback
             if (this.callback != null) this.callback.accept(this.pFrame.getValue());
 
+            // wait
+            try {
+                Thread.sleep(1000 / this.framerate);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
         }
 
         // close capture session
