@@ -136,6 +136,51 @@ int main() {
         }
 
         instance->strip = strip;
+
+        // initialize segments
+        segment_instance* segments = malloc(sizeof(segment_instance) * strip->num_segments);
+        for (int j = 0; j < strip->num_segments; j++) {
+            configuration_segment* segment = strip->segments[j];
+            segment_instance* instance = &segments[j];
+
+            instance->session.display = segment->display;
+            instance->session.framerate = config->fps;
+            instance->session.area.x = segment->x;
+            instance->session.area.y = segment->y;
+            instance->session.area.width = segment->width;
+            instance->session.area.height = segment->height;
+            if (segment->orientation == CONFIGURATION_ORIENTATION_HORIZONTAL) {
+                instance->session.size.width = segment->length;
+                instance->session.size.height = 1;
+            } else {
+                instance->session.size.width = 1;
+                instance->session.size.height = segment->length;
+            }
+
+            // create capture session
+            if (capture_create_session(&instance->session)) {
+                log_error("MAIN", "Couldn't initialize capture session");
+
+                free(segments);
+                free(strips);
+                configuration_free(config);
+                return 1;
+            }
+
+            // unbind capture session
+            if (capture_unbind(&instance->session)) {
+                log_error("MAIN", "Couldn't unbind capture session");
+
+                capture_destroy_session(&instance->session);
+                free(segments);
+                free(strips);
+                configuration_free(config);
+                return 1;
+            }
+
+            instance->segment = segment;
+        }
+
     }
 
     return 0;

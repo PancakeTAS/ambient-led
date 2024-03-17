@@ -53,3 +53,13 @@ int capture_grab_frame(const capture_session* session);
  *   Capture session to destroy
  */
 void capture_destroy_session(const capture_session* session);
+
+/**
+ * Unbind a capture session.
+ *
+ * \param session
+ *   Capture session to unbind
+ * \return
+ *   0 on success, 1 on failure
+ */
+int capture_unbind(const capture_session* session);

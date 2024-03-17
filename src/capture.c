@@ -128,3 +128,14 @@ void capture_destroy_session(const capture_session* session) {
     fbc.nvFBCDestroyHandle(session->nvfbc_handle, &(NVFBC_DESTROY_HANDLE_PARAMS) { .dwVersion = NVFBC_DESTROY_HANDLE_PARAMS_VER });
     log_debug("NVFBC", "Destroyed capture session for display %s with dimensions %d, %d, %dx%d", session->display, session->area.x, session->area.y, session->area.width, session->area.height);
 }
+
+int capture_unbind(const capture_session* session) {
+    NVFBCSTATUS status = fbc.nvFBCReleaseContext(session->nvfbc_handle, &(NVFBC_RELEASE_CONTEXT_PARAMS) { .dwVersion = NVFBC_RELEASE_CONTEXT_PARAMS_VER });
+    if (status != NVFBC_SUCCESS) {
+        log_trace("NVFBC", "nvFBCReleaseContext() failed: %s (%d)", fbc.nvFBCGetLastErrorStr(session->nvfbc_handle), status);
+
+        return 1;
+    }
+
+    return 0;
+}
