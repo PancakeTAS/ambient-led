@@ -34,7 +34,7 @@ int arduino_open(const char* port_name, int baud_rate, const char* header, int h
     if (ioctl(arduino, TCSETS2, &config) < 0) {
         log_trace("SERIAL", "ioctl() failed: %s", strerror(errno));
         close(arduino);
-        return 1;
+        return -1;
     }
 
     if (header) {
@@ -43,7 +43,7 @@ int arduino_open(const char* port_name, int baud_rate, const char* header, int h
             log_trace("SERIAL", "write() failed: %s", strerror(errno));
 
             close(arduino);
-            return 1;
+            return -1;
         }
 
         // wait until byte is received
@@ -54,7 +54,7 @@ int arduino_open(const char* port_name, int baud_rate, const char* header, int h
                 log_trace("SERIAL", "read() failed: %s", strerror(errno));
 
                 close(arduino);
-                return 1;
+                return -1;
             }
 
             if (c == 1)
@@ -63,7 +63,7 @@ int arduino_open(const char* port_name, int baud_rate, const char* header, int h
                 log_trace("SERIAL", "read() failed: Invalid byte");
 
                 close(arduino);
-                return 1;
+                return -1;
             }
 
             usleep(100000);
@@ -72,7 +72,7 @@ int arduino_open(const char* port_name, int baud_rate, const char* header, int h
                 log_trace("SERIAL", "read() failed: Timeout");
 
                 close(arduino);
-                return 1;
+                return -1;
             }
         }
     }
