@@ -1,4 +1,6 @@
 #include "configuration.h"
+#include "arduino.h"
+#include "raspberrypi.h"
 #include "log.h"
 
 #include <stdio.h>
@@ -30,6 +32,88 @@
     } while(0)
 
 #define CONFIG_FILE "config.json" //!< Config file name
+
+/**
+ * Create a Raspberry Pi led strip controller
+ *
+ * \param strip
+ *   Configuration for the led strip
+ * \param ups
+ *   Updates per second
+ * \param lerp
+ *   Lerp factor
+ *
+ * \return
+ *   File descriptor of the led strip controller or -1 on error
+ */
+static int create_rpi(configuration_strip* strip, int ups, float lerp) {
+    union {
+        float f;
+        char bytes[4];
+    } ftb;
+    char rpi_header[] = {
+        // 4-byte max brightness
+        (char) (strip->max_brightness >> 24), (char) (strip->max_brightness >> 16), (char) (strip->max_brightness >> 8), (char) strip->max_brightness,
+        // 4-byte LED count
+        (char) (strip->leds >> 24), (char) (strip->leds >> 16), (char) (strip->leds >> 8), (char) strip->leds,
+        // float multipliers (padding)
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        // 4-byte updates per second
+        (char) (ups >> 24), (char) (ups >> 16), (char) (ups >> 8), (char) ups,
+    };
+    // (set multipliers in big endian)
+    ftb.f = strip->r_mult;
+    rpi_header[8] = ftb.bytes[3];
+    rpi_header[9] = ftb.bytes[2];
+    rpi_header[10] = ftb.bytes[1];
+    rpi_header[11] = ftb.bytes[0];
+    ftb.f = strip->g_mult;
+    rpi_header[12] = ftb.bytes[3];
+    rpi_header[13] = ftb.bytes[2];
+    rpi_header[14] = ftb.bytes[1];
+    rpi_header[15] = ftb.bytes[0];
+    ftb.f = strip->b_mult;
+    rpi_header[16] = ftb.bytes[3];
+    rpi_header[17] = ftb.bytes[2];
+    rpi_header[18] = ftb.bytes[1];
+    rpi_header[19] = ftb.bytes[0];
+    ftb.f = lerp;
+    rpi_header[20] = ftb.bytes[3];
+    rpi_header[21] = ftb.bytes[2];
+    rpi_header[22] = ftb.bytes[1];
+    rpi_header[23] = ftb.bytes[0];
+    return raspberrypi_open(strip->addr, strip->port, rpi_header, 28);
+}
+
+/**
+ * Create an Arduino led strip controller
+ *
+ * \param strip
+ *   Configuration for the led strip
+ * \param ups
+ *   Updates per second
+ * \param lerp
+ *   Lerp factor
+ *
+ * \return
+ *   File descriptor of the led strip controller or -1 on error
+ */
+static int create_arduino(configuration_strip* strip, int ups, float lerp) {
+    char arduino_header[] = {
+        // 4-byte max brightness
+        (char) (strip->max_brightness >> 24), (char) (strip->max_brightness >> 16), (char) (strip->max_brightness >> 8), (char) strip->max_brightness,
+        // 4-byte LED count
+        (char) (strip->leds >> 24), (char) (strip->leds >> 16), (char) (strip->leds >> 8), (char) strip->leds,
+        // multipliers (fixed point)
+        (char) (strip->r_mult * 255.0 - 128.0), (char) (strip->g_mult * 255.0 - 128.0), (char) (strip->b_mult * 255.0 - 128.0), (char) (lerp * 255.0 - 128.0),
+        // 4-byte updates per second
+        (char) (ups >> 24), (char) (ups >> 16), (char) (ups >> 8), (char) ups,
+    };
+    return arduino_open(strip->addr, 981600, arduino_header, 16);
+}
 
 /**
  * Read the config file and return a cJSON object
@@ -93,11 +177,13 @@ static cJSON* read_config() {
  *
  * \param json
  *   cJSON object to parse
+ * \param fps
+ *   Frames per second
  *
  * \return
  *   Led segment or NULL on error
  */
-configuration_segment* parse_segment(cJSON* json) {
+configuration_segment* parse_segment(cJSON* json, int fps) {
     // allocate memory for segment
     configuration_segment* segment = malloc(sizeof(configuration_segment));
     if (!segment) {
@@ -117,6 +203,29 @@ configuration_segment* parse_segment(cJSON* json) {
     GET_VAL(json, "orientation", segment, orientation, valueint);
     GET_VAL(json, "flip", segment, flip, valueint);
 
+    // create capture session
+    segment->capture.display = segment->display;
+    segment->capture.framerate = fps;
+    segment->capture.area.x = segment->x;
+    segment->capture.area.y = segment->y;
+    segment->capture.area.width = segment->width;
+    segment->capture.area.height = segment->height;
+    if (segment->orientation == CONFIGURATION_ORIENTATION_HORIZONTAL) {
+        segment->capture.size.width = segment->length;
+        segment->capture.size.height = 1;
+    } else {
+        segment->capture.size.width = 1;
+        segment->capture.size.height = segment->length;
+    }
+
+    if (capture_create_session(&segment->capture)) {
+        log_trace("CONFIGURATION", "capture_create_session() failed");
+
+        free(segment->display);
+        free(segment);
+        return NULL;
+    }
+
     log_debug("CONFIGURATION", "Segment parsed successfully (display: %s)", segment->display);
     return segment;
 }
@@ -126,11 +235,17 @@ configuration_segment* parse_segment(cJSON* json) {
  *
  * \param json
  *   cJSON object to parse
+ * \param ups
+ *   Updates per second
+ * \param lerp
+ *   Lerp factor
+ * \param fps
+ *   Frames per second
  *
  * \return
  *   Led strip or NULL on error
  */
-configuration_strip* parse_strip(cJSON* json) {
+configuration_strip* parse_strip(cJSON* json, int ups, float lerp, int fps) {
     // allocate memory for strip
     configuration_strip* strip = malloc(sizeof(configuration_strip));
     if (!strip) {
@@ -148,10 +263,22 @@ configuration_strip* parse_strip(cJSON* json) {
         return NULL;
     }
 
+    // get values
+    GET_VALS(json, "addr", strip, addr);
+    GET_VAL(json, "leds", strip, leds, valueint);
+    GET_VAL(json, "max_brightness", strip, max_brightness, valueint);
+    GET_VAL(json, "r_mult", strip, r_mult, valuedouble);
+    GET_VAL(json, "g_mult", strip, g_mult, valuedouble);
+    GET_VAL(json, "b_mult", strip, b_mult, valuedouble);
+
+    // initialize strip
     if (strcmp(type->valuestring, "rpi") == 0) {
         strip->type = CONFIGURATION_TYPE_RPI;
+        GET_VAL(json, "port", strip, port, valueint);
+        strip->fd = create_rpi(strip, ups, lerp);
     } else if (strcmp(type->valuestring, "arduino") == 0) {
         strip->type = CONFIGURATION_TYPE_ARDUINO;
+        strip->fd = create_arduino(strip, ups, lerp);
     } else {
         log_trace("CONFIGURATION", "cJSON_GetObjectItem() failed: Invalid type");
 
@@ -159,15 +286,12 @@ configuration_strip* parse_strip(cJSON* json) {
         return NULL;
     }
 
+    if (strip->fd < 0) {
+        log_trace("CONFIGURATION", "create_%s() failed", type->valuestring);
 
-    // get values
-    GET_VALS(json, "addr", strip, addr);
-    if (strip->type == CONFIGURATION_TYPE_RPI) { GET_VAL(json, "port", strip, port, valueint); }
-    GET_VAL(json, "leds", strip, leds, valueint);
-    GET_VAL(json, "max_brightness", strip, max_brightness, valueint);
-    GET_VAL(json, "r_mult", strip, r_mult, valuedouble);
-    GET_VAL(json, "g_mult", strip, g_mult, valuedouble);
-    GET_VAL(json, "b_mult", strip, b_mult, valuedouble);
+        free(strip);
+        return NULL;
+    }
 
     // get segments
     cJSON* segments = cJSON_GetObjectItem(json, "segments");
@@ -191,7 +315,7 @@ configuration_strip* parse_strip(cJSON* json) {
     cJSON* segment;
     strip->num_segments = 0;
     cJSON_ArrayForEach(segment, segments) {
-        configuration_segment* seg = parse_segment(segment);
+        configuration_segment* seg = parse_segment(segment, fps);
         if (!seg) {
             log_trace("CONFIGURATION", "parse_segment() failed");
 
@@ -252,7 +376,7 @@ configuration_data* parse_configuration(cJSON* json) {
     cJSON* strip;
     data->num_strips = 0;
     cJSON_ArrayForEach(strip, strips) {
-        configuration_strip* s = parse_strip(strip);
+        configuration_strip* s = parse_strip(strip, data->ups, data->lerp, data->fps);
         if (!s) {
             log_trace("CONFIGURATION", "parse_strip() failed");
 
@@ -293,9 +417,14 @@ configuration_data* configuration_parse() {
 void configuration_free(configuration_data* data) {
     for (int i = 0; i < data->num_strips; i++) {
         for (int j = 0; j < data->strips[i]->num_segments; j++) {
+            capture_destroy_session(&data->strips[i]->segments[j]->capture);
+
             free(data->strips[i]->segments[j]->display);
             free(data->strips[i]->segments[j]);
         }
+
+        if (data->strips[i]->type == CONFIGURATION_TYPE_RPI) raspberrypi_close(data->strips[i]->fd);
+        else if (data->strips[i]->type == CONFIGURATION_TYPE_ARDUINO) arduino_close(data->strips[i]->fd);
 
         free(data->strips[i]->addr);
         free(data->strips[i]->segments);

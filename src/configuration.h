@@ -3,6 +3,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "capture.h"
 
 typedef enum {
     CONFIGURATION_ORIENTATION_VERTICAL, //!< Vertical orientation
@@ -19,6 +20,7 @@ typedef struct {
     int height; //!< Height of the capture area
     configuration_orientation orientation; //!< Orientation of this segment in the strip
     bool flip; //!< Flip the direction of this segment
+    capture_session capture; //!< Capture session for this segment
 } configuration_segment; //!< Configuration for a segment of the led strip
 
 typedef enum {
@@ -37,6 +39,7 @@ typedef struct {
     float r_mult; //!< Red multiplier
     float g_mult; //!< Green multiplier
     float b_mult; //!< Blue multiplier
+    int fd; //!< File descriptor for the controller
 } configuration_strip; //!< Configuration for an led strip
 
 typedef struct {
