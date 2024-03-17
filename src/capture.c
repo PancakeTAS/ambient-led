@@ -90,7 +90,7 @@ int capture_create_session(capture_session* session) {
     // setup system memory buffer
     NVFBC_TOSYS_SETUP_PARAMS setup_params = {
         .dwVersion = NVFBC_TOSYS_SETUP_PARAMS_VER,
-        .eBufferFormat = NVFBC_BUFFER_FORMAT_BGRA,
+        .eBufferFormat = NVFBC_BUFFER_FORMAT_RGB,
         .ppBuffer = (void**) &session->buffer,
         .bWithDiffMap = NVFBC_FALSE
     };
@@ -103,13 +103,29 @@ int capture_create_session(capture_session* session) {
         return 1;
     }
 
+    // unbind context
+    status = fbc.nvFBCReleaseContext(session->nvfbc_handle, &(NVFBC_RELEASE_CONTEXT_PARAMS) { .dwVersion = NVFBC_RELEASE_CONTEXT_PARAMS_VER });
+    if (status != NVFBC_SUCCESS) {
+        log_trace("NVFBC", "nvFBCReleaseContext() failed: %s (%d)", fbc.nvFBCGetLastErrorStr(session->nvfbc_handle), status);
+
+        return 1;
+    }
+
     log_debug("NVFBC", "Created capture session for display %s with dimensions %d, %d, %dx%d", session->display, session->area.x, session->area.y, session->area.width, session->area.height);
     return 0;
 }
 
 int capture_grab_frame(const capture_session* session) {
+    // bind context
+    NVFBCSTATUS status = fbc.nvFBCBindContext(session->nvfbc_handle, &(NVFBC_BIND_CONTEXT_PARAMS) { .dwVersion = NVFBC_BIND_CONTEXT_PARAMS_VER });
+    if (status != NVFBC_SUCCESS) {
+        log_trace("NVFBC", "nvFBCBindContext() failed: %s (%d)", fbc.nvFBCGetLastErrorStr(session->nvfbc_handle), status);
+
+        return 1;
+    }
+
     // grab frame
-    NVFBCSTATUS status = fbc.nvFBCToSysGrabFrame(session->nvfbc_handle, &(NVFBC_TOSYS_GRAB_FRAME_PARAMS) {
+    status = fbc.nvFBCToSysGrabFrame(session->nvfbc_handle, &(NVFBC_TOSYS_GRAB_FRAME_PARAMS) {
         .dwVersion = NVFBC_TOSYS_GRAB_FRAME_PARAMS_VER,
         .dwFlags = NVFBC_TOSYS_GRAB_FLAGS_NOWAIT
     });
@@ -119,7 +135,15 @@ int capture_grab_frame(const capture_session* session) {
         return 1;
     }
 
-    log_debug("NVFBC", "Grabbed frame from capture session for display %s with dimensions %d, %d, %dx%d", session->display, session->area.x, session->area.y, session->area.width, session->area.height);
+    // unbind context
+    status = fbc.nvFBCReleaseContext(session->nvfbc_handle, &(NVFBC_RELEASE_CONTEXT_PARAMS) { .dwVersion = NVFBC_RELEASE_CONTEXT_PARAMS_VER });
+    if (status != NVFBC_SUCCESS) {
+        log_trace("NVFBC", "nvFBCReleaseContext() failed: %s (%d)", fbc.nvFBCGetLastErrorStr(session->nvfbc_handle), status);
+
+        return 1;
+    }
+
+    //log_debug("NVFBC", "Grabbed frame from capture session for display %s with dimensions %d, %d, %dx%d", session->display, session->area.x, session->area.y, session->area.width, session->area.height);
     return 0;
 }
 
@@ -127,15 +151,4 @@ void capture_destroy_session(const capture_session* session) {
     fbc.nvFBCDestroyCaptureSession(session->nvfbc_handle, &(NVFBC_DESTROY_CAPTURE_SESSION_PARAMS) { .dwVersion = NVFBC_DESTROY_CAPTURE_SESSION_PARAMS_VER });
     fbc.nvFBCDestroyHandle(session->nvfbc_handle, &(NVFBC_DESTROY_HANDLE_PARAMS) { .dwVersion = NVFBC_DESTROY_HANDLE_PARAMS_VER });
     log_debug("NVFBC", "Destroyed capture session for display %s with dimensions %d, %d, %dx%d", session->display, session->area.x, session->area.y, session->area.width, session->area.height);
-}
-
-int capture_unbind(const capture_session* session) {
-    NVFBCSTATUS status = fbc.nvFBCReleaseContext(session->nvfbc_handle, &(NVFBC_RELEASE_CONTEXT_PARAMS) { .dwVersion = NVFBC_RELEASE_CONTEXT_PARAMS_VER });
-    if (status != NVFBC_SUCCESS) {
-        log_trace("NVFBC", "nvFBCReleaseContext() failed: %s (%d)", fbc.nvFBCGetLastErrorStr(session->nvfbc_handle), status);
-
-        return 1;
-    }
-
-    return 0;
 }
