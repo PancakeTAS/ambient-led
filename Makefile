@@ -3,8 +3,8 @@ OBJECTS := $(SOURCES:.c=.o)
 TARGET = ambientled
 
 CC = gcc
-CFLAGS = -Wno-unused-parameter -Wall -Wextra -Werror -std=gnu17 -pedantic
-LDFLAGS =
+CFLAGS = -Wno-unused-parameter -Wall -Wextra -Werror -std=gnu17 -pedantic -Iinclude
+LDFLAGS = -lnvidia-fbc
 
 ifndef PROD
 CFLAGS += -g
