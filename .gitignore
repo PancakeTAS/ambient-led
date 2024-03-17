@@ -1,0 +1,6 @@
+# VSCode files
+.vscode/
+build/
+
+# Build files
+*.o
