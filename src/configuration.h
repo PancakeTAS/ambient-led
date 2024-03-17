@@ -40,6 +40,7 @@ typedef struct {
     float g_mult; //!< Green multiplier
     float b_mult; //!< Blue multiplier
     int fd; //!< File descriptor for the controller
+    char* buffer; //!< Buffer for the controller
 } configuration_strip; //!< Configuration for an led strip
 
 typedef struct {

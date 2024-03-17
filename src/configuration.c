@@ -282,6 +282,7 @@ configuration_strip* parse_strip(cJSON* json, int ups, float lerp, int fps) {
     } else {
         log_trace("CONFIGURATION", "cJSON_GetObjectItem() failed: Invalid type");
 
+        free(strip->addr);
         free(strip);
         return NULL;
     }
@@ -289,15 +290,21 @@ configuration_strip* parse_strip(cJSON* json, int ups, float lerp, int fps) {
     if (strip->fd < 0) {
         log_trace("CONFIGURATION", "create_%s() failed", type->valuestring);
 
+        free(strip->addr);
         free(strip);
         return NULL;
     }
+
+    // create buffer
+    strip->buffer = malloc(strip->leds * 3);
 
     // get segments
     cJSON* segments = cJSON_GetObjectItem(json, "segments");
     if (!segments) {
         log_trace("CONFIGURATION", "cJSON_GetObjectItem() failed: No segments");
 
+        free(strip->buffer);
+        free(strip->addr);
         free(strip);
         return NULL;
     }
@@ -308,6 +315,8 @@ configuration_strip* parse_strip(cJSON* json, int ups, float lerp, int fps) {
     if (!strip->segments) {
         log_trace("CONFIGURATION", "malloc() failed: %s", strerror(errno));
 
+        free(strip->buffer);
+        free(strip->addr);
         free(strip);
         return NULL;
     }
@@ -319,6 +328,8 @@ configuration_strip* parse_strip(cJSON* json, int ups, float lerp, int fps) {
         if (!seg) {
             log_trace("CONFIGURATION", "parse_segment() failed");
 
+            free(strip->buffer);
+            free(strip->addr);
             free(strip->segments);
             free(strip);
             return NULL;
@@ -428,6 +439,7 @@ void configuration_free(configuration_data* data) {
 
         free(data->strips[i]->addr);
         free(data->strips[i]->segments);
+        free(data->strips[i]->buffer);
         free(data->strips[i]);
     }
 
