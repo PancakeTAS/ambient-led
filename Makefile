@@ -4,7 +4,7 @@ TARGET = ambientled
 
 CC = gcc
 CFLAGS = -Wno-unused-parameter -Wall -Wextra -Werror -std=gnu17 -pedantic -Iinclude
-LDFLAGS = -lnvidia-fbc
+LDFLAGS = -lnvidia-fbc -lcjson
 
 ifndef PROD
 CFLAGS += -g
